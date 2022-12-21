@@ -95,7 +95,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<Item> getItemsByDescription(String itemDescription) {
-        if(itemDescription.isBlank()) {
+        if (itemDescription.isBlank()) {
             log.info("Пустая строка поиска /search");
             return List.of();
         } else {

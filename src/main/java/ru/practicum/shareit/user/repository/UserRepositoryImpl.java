@@ -7,7 +7,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Repository
-public class UserRepositoryImpl implements UserRepository{
+public class UserRepositoryImpl implements UserRepository {
     Map<Long, User> users;
     Map<Long, String> emails;
     AtomicLong atomicLong;
@@ -30,9 +30,9 @@ public class UserRepositoryImpl implements UserRepository{
 
     @Override
     public Optional<Map<Long, String>> checkUserEmailBusy(String email) {
-        if(emails.containsValue(email)) {
-            for(Long userId : emails.keySet()) {
-                if(emails.get(userId).equals(email)) {
+        if (emails.containsValue(email)) {
+            for (Long userId : emails.keySet()) {
+                if (emails.get(userId).equals(email)) {
                     return Optional.of(Map.of(userId, email));
                 }
             }
