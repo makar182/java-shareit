@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.item.dto;
 
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +14,7 @@ import java.util.Objects;
  */
 @Data
 @Builder
-public class Item {
+public class ItemDtoRequest {
     private Long id;
     @NotNull(message = "У вещи должно быть название!", groups = OnAdd.class)
     @NotBlank(message = "У вещи должно быть название!", groups = OnAdd.class)
@@ -24,19 +24,17 @@ public class Item {
     private String description;
     @NotNull(message = "У вещи должна быть указана доступность!", groups = OnAdd.class)
     private Boolean available;
-    @NotNull
-    private Long userId;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Item item = (Item) o;
-        return id.equals(item.id);
+        ItemDtoRequest that = (ItemDtoRequest) o;
+        return name.equals(that.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(name);
     }
 }
