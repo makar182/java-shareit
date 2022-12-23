@@ -23,13 +23,17 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item addItem(Long userId, Item item) {
-        if (userRepository.getUserById(userId) == null) {
+        userRepository.getUserById(userId).orElseThrow(() -> {
             log.info(String.format("Пользователь %d не существует", userId));
             throw new ItemNotValidPropertiesException(String.format("Пользователь %d не существует", userId));
-        }
+        });
 
         item.setUserId(userId);
-        Item newItem = itemRepository.addItem(item);
+        Item newItem = itemRepository.addItem(item).orElseThrow(() -> {
+            log.info(String.format("Предмет %s не добавлен", item));
+            return null;
+        });
+
         log.info(String.format("Предмет %s успешно добавлен", newItem));
         return newItem;
     }
@@ -37,10 +41,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Item updateItem(Long userId, Long itemId, Item item) {
         Item oldItem = getItemById(itemId);
-        if (oldItem == null) {
-            log.info(String.format("Изменяемый предмет %d не существует", itemId));
-            throw new ItemNotExistException(String.format("Изменяемый предмет %d не существует", itemId));
-        } else if (!oldItem.getUserId().equals(userId)) {
+        if (!oldItem.getUserId().equals(userId)) {
             log.info(String.format("Изменяемый предмет не принадлежит пользователю %d", userId));
             throw new ItemNotValidPropertiesException(String.format("Изменяемый предмет не принадлежит пользователю %d", userId));
         }
@@ -74,14 +75,21 @@ public class ItemServiceImpl implements ItemService {
                 .userId(oldItem.getUserId())
                 .build();
 
-        Item newItem = itemRepository.updateItem(itemToAdd);
+        Item newItem = itemRepository.updateItem(itemToAdd).orElseThrow(() -> {
+            log.info(String.format("Предмет %s не обновлен", itemToAdd));
+            return null;
+        });
+
         log.info(String.format("Предмет %s успешно обновлен", newItem));
         return newItem;
     }
 
     @Override
     public Item getItemById(Long itemId) {
-        Item item = itemRepository.getItemById(itemId);
+        Item item = itemRepository.getItemById(itemId).orElseThrow(() -> {
+            log.info(String.format("Предмет %d не найден", itemId));
+            throw new ItemNotExistException(String.format("Предмет %d не найден", itemId));
+        });
         log.info(String.format("Предмет %s выгружен", item));
         return item;
     }

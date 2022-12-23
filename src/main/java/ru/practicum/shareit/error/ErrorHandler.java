@@ -32,5 +32,12 @@ public class ErrorHandler {
         log.error("Ошибка валидации предмета:" + e.getMessage());
         return new ErrorResponse("Ошибка валидации предмета", e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleThrowable(final Throwable e) {
+        log.error("Неизвестная ошибка:" + e.getMessage());
+        return new ErrorResponse("Неизвестная ошибка:", e.getMessage());
+    }
 }
 

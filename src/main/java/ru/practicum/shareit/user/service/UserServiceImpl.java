@@ -8,8 +8,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -22,7 +20,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(Long userId) {
-        User user = userRepository.getUserById(userId);
+        User user = userRepository.getUserById(userId).orElseThrow(() -> {
+            log.info(String.format("Пользователь %d не найден", userId));
+            return null;
+        });
         log.info(String.format("Пользователь %s выгружен по id.", user));
         return user;
     }
@@ -36,32 +37,33 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User addUser(User user) {
-        Optional<Map<Long, String>> check = userRepository.checkUserEmailBusy(user.getEmail());
-        if (check.isPresent()) {
+        if (userRepository.checkUserEmailBusy(user.getEmail())) {
             log.info(String.format("Пользователь с почтой %s уже зарегистрирован", user.getEmail()));
             throw new DuplicateUserEmailException(String.format("Пользователь с почтой %s уже зарегистрирован", user.getEmail()));
         }
-        User result = userRepository.addUser(user);
+
+        User result = userRepository.addUser(user).orElseThrow(() -> {
+            log.info(String.format("Пользователь %s не добавлен", user));
+            return null;
+        });
         log.info(String.format("Пользователь %s добавлен.", result));
         return result;
     }
 
     @Override
     public User updateUser(Long userId, User user) {
-        User oldUser = userRepository.getUserById(userId);
-        if (oldUser == null) {
+        User oldUser = userRepository.getUserById(userId).orElseThrow(() -> {
             log.info(String.format("Пользователь %d не существует!", userId));
             throw new UserNotExistException(String.format("Пользователь %d не существует!", userId));
-        }
+        });
 
         if (user.getEmail() != null
                 && !user.getEmail().isBlank()
-                && !oldUser.getEmail().equals(user.getEmail())) {
-            Optional<Map<Long, String>> check = userRepository.checkUserEmailBusy(user.getEmail());
-            if (check.isPresent()) {
-                log.info(String.format("Электронная почта %s уже зарегистрирована другим пользователем", user.getEmail()));
-                throw new DuplicateUserEmailException(String.format("Электронная почта %s уже зарегистрирована другим пользователем", user.getEmail()));
-            }
+                && !oldUser.getEmail().equals(user.getEmail())
+                && userRepository.checkUserEmailBusy(user.getEmail())) {
+            log.info(String.format("Электронная почта %s уже зарегистрирована другим пользователем", user.getEmail()));
+            throw new DuplicateUserEmailException(String.format("Электронная почта %s уже зарегистрирована другим пользователем", user.getEmail()));
+
         }
 
         String newEmail;
@@ -83,7 +85,12 @@ public class UserServiceImpl implements UserService {
                 .name(newName)
                 .email(newEmail)
                 .build();
-        User newUser = userRepository.updateUser(result);
+
+        User newUser = userRepository.updateUser(result).orElseThrow(() -> {
+            log.info(String.format("Пользователь %s не обновлен", result));
+            return null;
+        });
+
         log.info(String.format("Пользователь %s обновлен.", newUser));
         return newUser;
     }
