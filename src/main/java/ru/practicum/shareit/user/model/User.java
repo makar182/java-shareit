@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.user.model;
 
 import lombok.Builder;
 import lombok.Data;
@@ -7,19 +7,17 @@ import java.util.Objects;
 
 @Data
 @Builder
-public class Item {
+public class User {
     private Long id;
     private String name;
-    private String description;
-    private Boolean available;
-    private Long userId;
+    private String email;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Item item = (Item) o;
-        return id.equals(item.id);
+        User user = (User) o;
+        return id.equals(user.id);
     }
 
     @Override
