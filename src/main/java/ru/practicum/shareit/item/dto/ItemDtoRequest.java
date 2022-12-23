@@ -9,9 +9,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Objects;
 
-/**
- * TODO Sprint add-controllers.
- */
 @Data
 @Builder
 public class ItemDtoRequest {

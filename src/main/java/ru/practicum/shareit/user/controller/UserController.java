@@ -4,17 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.interfaces.OnAdd;
-import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.interfaces.OnUpdate;
+import ru.practicum.shareit.user.dto.UserRequestDto;
+import ru.practicum.shareit.user.dto.UserResponseDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.service.UserService;
-import ru.practicum.shareit.user.dto.UserRequestDto;
 
-import javax.validation.Valid;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
@@ -22,23 +19,23 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public List<User> getUsers() {
-        return userService.getUsers();
+    public List<UserResponseDto> getUsers() {
+        return UserMapper.toDtoList(userService.getUsers());
     }
 
     @GetMapping("/{userId}")
-    public User getUserById(@PathVariable("userId") Long userId) {
-        return userService.getUserById(userId);
+    public UserResponseDto getUserById(@PathVariable("userId") Long userId) {
+        return UserMapper.toDto(userService.getUserById(userId));
     }
 
     @PostMapping
-    public User addUser(@Validated(OnAdd.class) @RequestBody UserRequestDto userRequestDto) {
-        return userService.addUser(UserMapper.toEntity(userRequestDto));
+    public UserResponseDto addUser(@Validated(OnAdd.class) @RequestBody UserRequestDto userRequestDto) {
+        return UserMapper.toDto(userService.addUser(UserMapper.toEntity(userRequestDto)));
     }
 
     @PatchMapping("/{userId}")
-    public User updateUser(@PathVariable("userId") Long userId, @Valid @RequestBody UserRequestDto userRequestDto) {
-        return userService.updateUser(userId, UserMapper.toEntity(userRequestDto));
+    public UserResponseDto updateUser(@PathVariable("userId") Long userId, @Validated(OnUpdate.class) @RequestBody UserRequestDto userRequestDto) {
+        return UserMapper.toDto(userService.updateUser(userId, UserMapper.toEntity(userRequestDto)));
     }
 
     @DeleteMapping("/{userId}")
