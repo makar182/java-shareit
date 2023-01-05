@@ -20,17 +20,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(Long userId) {
-        User user = userRepository.getUserById(userId).orElseThrow(() -> {
+        User user = userRepository.getReferenceById(userId);
+        if (user.getId() == null) {
             log.info(String.format("Пользователь %d не найден", userId));
             return null;
-        });
+        }
+        ;
         log.info(String.format("Пользователь %s выгружен по id.", user));
         return user;
     }
 
     @Override
     public List<User> getUsers() {
-        List<User> users = userRepository.getUsers();
+        List<User> users = userRepository.findAll();
         log.info("Выгружены все пользователи");
         return users;
     }
@@ -42,20 +44,25 @@ public class UserServiceImpl implements UserService {
             throw new DuplicateUserEmailException(String.format("Пользователь с почтой %s уже зарегистрирован", user.getEmail()));
         }
 
-        User result = userRepository.addUser(user).orElseThrow(() -> {
+        User result = userRepository.saveAndFlush(user);
+        if (result.getId() == null) {
             log.info(String.format("Пользователь %s не добавлен", user));
             return null;
-        });
+        }
+        ;
         log.info(String.format("Пользователь %s добавлен.", result));
         return result;
     }
 
     @Override
     public User updateUser(Long userId, User user) {
-        User oldUser = userRepository.getUserById(userId).orElseThrow(() -> {
+        User oldUser = userRepository.getReferenceById(userId);
+
+        if (oldUser.getId() == null) {
             log.info(String.format("Пользователь %d не существует!", userId));
             throw new UserNotExistException(String.format("Пользователь %d не существует!", userId));
-        });
+        }
+        ;
 
         if (user.getEmail() != null
                 && !user.getEmail().isBlank()
@@ -86,10 +93,12 @@ public class UserServiceImpl implements UserService {
                 .email(newEmail)
                 .build();
 
-        User newUser = userRepository.updateUser(result).orElseThrow(() -> {
+        User newUser = userRepository.saveAndFlush(result);
+
+        if (newUser.getId() == null) {
             log.info(String.format("Пользователь %s не обновлен", result));
             return null;
-        });
+        };
 
         log.info(String.format("Пользователь %s обновлен.", newUser));
         return newUser;
@@ -97,7 +106,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(Long userId) {
-        userRepository.deleteUser(userId);
+        userRepository.deleteById(userId);
         log.info(String.format("Пользователь %d удалён.", userId));
     }
 }

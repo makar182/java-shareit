@@ -6,6 +6,7 @@ import ru.practicum.shareit.exception.ItemNotExistException;
 import ru.practicum.shareit.exception.ItemNotValidPropertiesException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
@@ -23,16 +24,14 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item addItem(Long userId, Item item) {
-        userRepository.getUserById(userId).orElseThrow(() -> {
+        User user = userRepository.getReferenceById(userId);
+        if(user.getId() == null) {
             log.info(String.format("Пользователь %d не существует", userId));
             throw new ItemNotValidPropertiesException(String.format("Пользователь %d не существует", userId));
-        });
+        }
 
-        item.setUserId(userId);
-        Item newItem = itemRepository.addItem(item).orElseThrow(() -> {
-            log.info(String.format("Предмет %s не добавлен", item));
-            return null;
-        });
+        item.setUser(user);
+        Item newItem = itemRepository.saveAndFlush(item);
 
         log.info(String.format("Предмет %s успешно добавлен", newItem));
         return newItem;
@@ -41,7 +40,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Item updateItem(Long userId, Long itemId, Item item) {
         Item oldItem = getItemById(itemId);
-        if (!oldItem.getUserId().equals(userId)) {
+        if (!oldItem.getUser().getId().equals(userId)) {
             log.info(String.format("Изменяемый предмет не принадлежит пользователю %d", userId));
             throw new ItemNotValidPropertiesException(String.format("Изменяемый предмет не принадлежит пользователю %d", userId));
         }
@@ -72,31 +71,32 @@ public class ItemServiceImpl implements ItemService {
                 .name(newItemName)
                 .description(newItemDescription)
                 .available(newItemAvailableFlag)
-                .userId(oldItem.getUserId())
+                .user(oldItem.getUser())
                 .build();
 
-        Item newItem = itemRepository.updateItem(itemToAdd).orElseThrow(() -> {
+        Item newItem = itemRepository.saveAndFlush(itemToAdd);
+        if(newItem.getId() == null) {
             log.info(String.format("Предмет %s не обновлен", itemToAdd));
             return null;
-        });
-
+        }
         log.info(String.format("Предмет %s успешно обновлен", newItem));
         return newItem;
     }
 
     @Override
     public Item getItemById(Long itemId) {
-        Item item = itemRepository.getItemById(itemId).orElseThrow(() -> {
+        Item item = itemRepository.getReferenceById(itemId);
+        if(item.getId() == null) {
             log.info(String.format("Предмет %d не найден", itemId));
             throw new ItemNotExistException(String.format("Предмет %d не найден", itemId));
-        });
+        }
         log.info(String.format("Предмет %s выгружен", item));
         return item;
     }
 
     @Override
     public List<Item> getItemsByUserId(Long userId) {
-        List<Item> items = itemRepository.getItemsByUserId(userId);
+        List<Item> items = itemRepository.findAllByUserId(userId);
         log.info(String.format("Выгружен список предметов по пользователю %d", userId));
         return items;
     }
@@ -107,7 +107,7 @@ public class ItemServiceImpl implements ItemService {
             log.info("Пустая строка поиска /search");
             return List.of();
         } else {
-            List<Item> items = itemRepository.getItemsByDescription(itemDescription.trim());
+            List<Item> items = itemRepository.findAllByDescriptionLike(itemDescription.trim());
             log.info(String.format("Выгружен список предметов по описанию '%s'", itemDescription));
             return items;
         }
