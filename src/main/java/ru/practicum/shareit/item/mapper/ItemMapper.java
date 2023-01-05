@@ -27,10 +27,6 @@ public class ItemMapper {
     }
 
     public static Item toEntity(ItemDtoRequest itemDtoRequest) {
-        return Item.builder()
-                .name(itemDtoRequest.getName())
-                .description(itemDtoRequest.getDescription())
-                .available(itemDtoRequest.getAvailable())
-                .build();
+        return new Item(null, itemDtoRequest.getName(), itemDtoRequest.getDescription(), itemDtoRequest.getAvailable(), null);
     }
 }
