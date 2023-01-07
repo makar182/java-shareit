@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user.mapper;
 
+import ru.practicum.shareit.user.dto.UserInBookingResponseDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.dto.UserRequestDto;
 import ru.practicum.shareit.user.dto.UserResponseDto;
@@ -13,6 +14,12 @@ public class UserMapper {
                 .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
+                .build();
+    }
+
+    public static UserInBookingResponseDto toDtoForBookingResponse(User user) {
+        return UserInBookingResponseDto.builder()
+                .id(user.getId())
                 .build();
     }
 

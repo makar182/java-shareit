@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.ItemNotExistException;
 import ru.practicum.shareit.exception.ItemNotValidPropertiesException;
+import ru.practicum.shareit.exception.UserNotExistException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
@@ -26,10 +27,10 @@ public class ItemServiceImpl implements ItemService {
     public Item addItem(Long userId, Item item) {
         User user = userRepository.findById(userId).orElseThrow(() -> {
             log.info(String.format("Пользователь %d не существует", userId));
-            throw new ItemNotValidPropertiesException(String.format("Пользователь %d не существует", userId));
+            throw new UserNotExistException(String.format("Пользователь %d не существует", userId));
         });
 
-        item.setUser(user);
+        item.setOwner(user);
         Item newItem = itemRepository.saveAndFlush(item);
 
         log.info(String.format("Предмет %s успешно добавлен", newItem));
@@ -40,10 +41,10 @@ public class ItemServiceImpl implements ItemService {
     public Item updateItem(Long userId, Long itemId, Item item) {
         Item oldItem = itemRepository.findById(itemId).orElseThrow(() -> {
             log.info(String.format("Предмет %d: %s не существует", itemId, item));
-            throw new ItemNotValidPropertiesException(String.format("Предмет %d: %s не существует", itemId, item));
+            throw new ItemNotExistException(String.format("Предмет %d: %s не существует", itemId, item));
         });
 
-        if (!oldItem.getUser().getId().equals(userId)) {
+        if (!oldItem.getOwner().getId().equals(userId)) {
             log.info(String.format("Изменяемый предмет не принадлежит пользователю %d", userId));
             throw new ItemNotValidPropertiesException(String.format("Изменяемый предмет не принадлежит пользователю %d", userId));
         }
@@ -69,7 +70,7 @@ public class ItemServiceImpl implements ItemService {
             newItemAvailableFlag = oldItem.getAvailable();
         }
 
-        Item itemToAdd = new Item(oldItem.getId(), newItemName, newItemDescription, newItemAvailableFlag, oldItem.getUser());
+        Item itemToAdd = new Item(oldItem.getId(), newItemName, newItemDescription, newItemAvailableFlag, oldItem.getOwner());
         Item newItem = itemRepository.saveAndFlush(itemToAdd);
         log.info(String.format("Предмет %s успешно обновлен", newItem));
         return newItem;
@@ -87,7 +88,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<Item> getItemsByUserId(Long userId) {
-        List<Item> items = itemRepository.findAllByUserId(userId);
+        List<Item> items = itemRepository.findAllByOwnerId(userId);
         log.info(String.format("Выгружен список предметов по пользователю %d", userId));
         return items;
     }

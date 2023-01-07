@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.mapper;
 
 import ru.practicum.shareit.item.dto.ItemDtoRequest;
 import ru.practicum.shareit.item.dto.ItemDtoResponse;
+import ru.practicum.shareit.item.dto.ItemForBookingResponseDto;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.ArrayList;
@@ -15,6 +16,13 @@ public class ItemMapper {
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
+                .build();
+    }
+
+    public static ItemForBookingResponseDto toDtoForBookingResponse(Item item) {
+        return ItemForBookingResponseDto.builder()
+                .id(item.getId())
+                .name(item.getName())
                 .build();
     }
 

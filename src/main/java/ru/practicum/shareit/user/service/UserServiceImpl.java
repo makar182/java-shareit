@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
         Optional<User> user = userRepository.findById(userId);
         if (user.isEmpty()) {
             log.info(String.format("Пользователь %d не найден", userId));
-            return null;
+            throw new UserNotExistException(String.format("Пользователь %d не найден", userId));
         }
         log.info(String.format("Пользователь %s выгружен по id.", user));
         return user.get();
@@ -39,10 +39,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User addUser(User user) {
-        if (userRepository.existsByEmail(user.getEmail())) {
-            log.info(String.format("Пользователь с почтой %s уже зарегистрирован", user.getEmail()));
-            throw new DuplicateUserEmailException(String.format("Пользователь с почтой %s уже зарегистрирован", user.getEmail()));
-        }
 
         User result = userRepository.saveAndFlush(user);
         log.info(String.format("Пользователь %s добавлен.", result));
