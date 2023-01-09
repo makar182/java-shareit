@@ -56,14 +56,14 @@ public class BookingServiceImpl implements BookingService {
 
         BookingState stateEnum = getBookingStateByString(state);
 
-        if(stateEnum.equals(BookingState.ALL)) {
+        if (stateEnum.equals(BookingState.ALL)) {
             return bookingRepository.findAllByBooker_Id(userId).stream()
                     .sorted(Comparator.comparing(Booking::getStart).reversed())
                     .collect(Collectors.toList());
         } else if (stateEnum.equals(BookingState.CURRENT)) {
             return bookingRepository.findAllByBooker_Id(userId).stream()
                     .filter(booking -> booking.getStart().isBefore(LocalDateTime.now())
-                                        && booking.getEnd().isAfter(LocalDateTime.now()))
+                            && booking.getEnd().isAfter(LocalDateTime.now()))
                     .sorted(Comparator.comparing(Booking::getStart).reversed())
                     .collect(Collectors.toList());
         } else if (stateEnum.equals(BookingState.PAST)) {
@@ -97,7 +97,7 @@ public class BookingServiceImpl implements BookingService {
 
         BookingState stateEnum = getBookingStateByString(state);
 
-        if(stateEnum.equals(BookingState.ALL)) {
+        if (stateEnum.equals(BookingState.ALL)) {
             return bookingRepository.findAllByItem_Owner_Id(userId).stream()
                     .sorted(Comparator.comparing(Booking::getStart).reversed())
                     .collect(Collectors.toList());
@@ -134,7 +134,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public Booking addBooking(Booking booking, Long userId) {
-        if(booking.getStart().isAfter(booking.getEnd())) {
+        if (booking.getStart().isAfter(booking.getEnd())) {
             log.info("Дата начала бронирования не может быть позже даты окончания!");
             throw new IncorrectBookingDateException("Дата начала бронирования не может быть позже даты окончания!");
         }

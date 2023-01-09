@@ -43,7 +43,7 @@ public class ItemMapper {
         Booking lastBooking = null;
         Booking nextBooking = null;
 
-        if(item.getOwner().getId().equals(ownerId)) {
+        if (item.getOwner().getId().equals(ownerId)) {
             lastBooking = bookings.stream()
                     .filter(booking -> booking.getStatus().equals(BookingStatus.APPROVED))
                     .filter(booking -> !booking.getEnd().isAfter(LocalDateTime.now())
@@ -79,7 +79,7 @@ public class ItemMapper {
         }
         return result.stream()
                 .sorted((o1, o2) -> {
-                    if(o1.getLastBooking() == null && o1.getNextBooking() == null) {
+                    if (o1.getLastBooking() == null && o1.getNextBooking() == null) {
                         return 1;
                     } else if (o2.getLastBooking() == null && o2.getNextBooking() == null) {
                         return -1;

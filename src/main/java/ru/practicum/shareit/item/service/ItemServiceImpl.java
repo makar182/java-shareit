@@ -89,12 +89,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemGetResponseDto getItemById(Long itemId) {
+    public ItemGetResponseDto getItemById(Long userId, Long itemId) {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> {
             log.info(String.format("Предмет %d не найден", itemId));
             throw new ItemNotExistException(String.format("Предмет %d не найден", itemId));
         });
-        ItemGetResponseDto result = itemMapper.toItemGetResponseDto(item, null);
+        ItemGetResponseDto result = itemMapper.toItemGetResponseDto(item, userId);
         log.info(String.format("Предмет %s выгружен", result));
         return result;
     }
@@ -107,13 +107,13 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemGetResponseDto> getItemsByDescription(String itemDescription) {
+    public List<ItemGetResponseDto> getItemsByDescription(Long userId, String itemDescription) {
         if (itemDescription.isBlank()) {
             log.info("Пустая строка поиска /search");
             return List.of();
         } else {
             List<Item> items = itemRepository.findAllByDescriptionContainingIgnoreCaseAndAvailable(itemDescription.trim(), true);
-            List<ItemGetResponseDto> result = itemMapper.toItemGetResponseDtoList(items);
+            List<ItemGetResponseDto> result = itemMapper.toItemGetResponseDtoList(items, userId);
             log.info(String.format("Выгружен список предметов по описанию '%s'", itemDescription));
             return result;
         }

@@ -30,7 +30,7 @@ public class BookingMapper {
     }
 
     public static BookingForItemResponseDto toBookingForItemResponseDto(Booking booking) {
-        if(booking == null) {
+        if (booking == null) {
             return null;
         } else {
             return BookingForItemResponseDto.builder()
