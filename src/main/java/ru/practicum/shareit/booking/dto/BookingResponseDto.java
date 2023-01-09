@@ -9,16 +9,23 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dto.UserInBookingResponseDto;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @Builder
 public class BookingResponseDto {
+    @NotNull
     private Long id;
+    @NotNull
     private LocalDateTime start;
+    @NotNull
     private LocalDateTime end;
+    @NotNull
     private BookingStatus status;
+    @NotNull
     private UserInBookingResponseDto booker;
+    @NotNull
     private ItemForBookingResponseDto item;
 }

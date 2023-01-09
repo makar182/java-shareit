@@ -29,5 +29,6 @@ public class Booking {
     @OneToOne
     @JoinColumn(name = "booker_id", referencedColumnName = "id")
     private User booker;
+    @Enumerated(EnumType.STRING)
     private BookingStatus status;
 }

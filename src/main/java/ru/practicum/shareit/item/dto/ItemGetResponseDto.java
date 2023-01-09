@@ -8,6 +8,7 @@ import ru.practicum.shareit.booking.dto.BookingForItemResponseDto;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -25,6 +26,7 @@ public class ItemGetResponseDto {
     private Boolean available;
     private BookingForItemResponseDto lastBooking;
     private BookingForItemResponseDto nextBooking;
+    private List<CommentResponseDto> comments;
 
     @Override
     public boolean equals(Object o) {

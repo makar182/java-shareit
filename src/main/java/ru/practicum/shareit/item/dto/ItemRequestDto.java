@@ -14,7 +14,6 @@ import java.util.Objects;
 @Setter
 @Builder
 public class ItemRequestDto {
-    private Long id;
     @NotNull(message = "У вещи должно быть название!", groups = OnAdd.class)
     @NotBlank(message = "У вещи должно быть название!", groups = OnAdd.class)
     private String name;

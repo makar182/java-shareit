@@ -2,17 +2,20 @@ package ru.practicum.shareit.item.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.enums.BookingStatus;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.exception.ItemNotExistException;
-import ru.practicum.shareit.exception.ItemNotValidPropertiesException;
-import ru.practicum.shareit.exception.UserNotExistException;
+import ru.practicum.shareit.exception.*;
 import ru.practicum.shareit.item.dto.ItemGetResponseDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -20,12 +23,16 @@ import java.util.List;
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
     ItemMapper itemMapper;
 
-    public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository, BookingRepository bookingRepository) {
+    public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository, BookingRepository bookingRepository, CommentRepository commentRepository) {
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
-        itemMapper = new ItemMapper(bookingRepository);
+        this.bookingRepository = bookingRepository;
+        this.commentRepository = commentRepository;
+        itemMapper = new ItemMapper(this.bookingRepository, commentRepository);
     }
 
     @Override
@@ -75,7 +82,7 @@ public class ItemServiceImpl implements ItemService {
             newItemAvailableFlag = oldItem.getAvailable();
         }
 
-        Item itemToAdd = new Item(oldItem.getId(), newItemName, newItemDescription, newItemAvailableFlag, oldItem.getOwner());
+        Item itemToAdd = new Item(oldItem.getId(), newItemName, newItemDescription, newItemAvailableFlag, oldItem.getOwner(), oldItem.getComments());
         Item newItem = itemRepository.saveAndFlush(itemToAdd);
         log.info(String.format("Предмет %s успешно обновлен", newItem));
         return newItem;
@@ -87,14 +94,14 @@ public class ItemServiceImpl implements ItemService {
             log.info(String.format("Предмет %d не найден", itemId));
             throw new ItemNotExistException(String.format("Предмет %d не найден", itemId));
         });
-        ItemGetResponseDto result = itemMapper.toItemGetResponseDto(item);
+        ItemGetResponseDto result = itemMapper.toItemGetResponseDto(item, null);
         log.info(String.format("Предмет %s выгружен", result));
         return result;
     }
 
     @Override
     public List<ItemGetResponseDto> getItemsByUserId(Long userId) {
-        List<ItemGetResponseDto> result = itemMapper.toItemGetResponseDtoList(itemRepository.findAllByOwnerId(userId));
+        List<ItemGetResponseDto> result = itemMapper.toItemGetResponseDtoList(itemRepository.findAllByOwnerId(userId), userId);
         log.info(String.format("Выгружен список предметов по пользователю %d", userId));
         return result;
     }
@@ -110,5 +117,30 @@ public class ItemServiceImpl implements ItemService {
             log.info(String.format("Выгружен список предметов по описанию '%s'", itemDescription));
             return result;
         }
+    }
+
+    @Override
+    public Comment addComment(Long userId, Long itemId, Comment comment) {
+        User user = checkUserExists(userId);
+
+        Booking bookingExist = bookingRepository.findAllByItem_Id(itemId).stream()
+                .filter(booking -> booking.getBooker().getId().equals(userId))
+                .filter(booking -> booking.getStatus().equals(BookingStatus.APPROVED))
+                .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()))
+                .findFirst()
+                .orElseThrow(() -> {
+                    log.info(String.format("Пользователь %d не брал предмет №%d в аренду!", userId, itemId));
+                    throw new ItemNotBookedByUserException(String.format("Пользователь %d не брал предмет №%d в аренду!", userId, itemId));
+                });
+        comment.setItem(bookingExist.getItem());
+        comment.setAuthor(user);
+        return commentRepository.saveAndFlush(comment);
+    }
+
+    private User checkUserExists(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> {
+            log.info(String.format("Пользователя №%d не существует!", userId));
+            throw new UserNotExistException(String.format("Пользователя №%d не существует!", userId));
+        });
     }
 }

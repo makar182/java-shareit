@@ -1,24 +1,31 @@
 package ru.practicum.shareit.item.mapper;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import ru.practicum.shareit.booking.enums.BookingStatus;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.item.dto.ItemGetResponseDto;
-import ru.practicum.shareit.item.dto.ItemRequestDto;
-import ru.practicum.shareit.item.dto.ItemResponseDto;
-import ru.practicum.shareit.item.dto.ItemForBookingResponseDto;
+import ru.practicum.shareit.item.dto.*;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.CommentRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
+@Component
 public class ItemMapper {
     private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
 
-    public ItemMapper(BookingRepository bookingRepository) {
+    @Autowired
+    public ItemMapper(BookingRepository bookingRepository, CommentRepository commentRepository) {
         this.bookingRepository = bookingRepository;
+        this.commentRepository = commentRepository;
     }
 
     public ItemResponseDto toItemResponseDto(Item item) {
@@ -30,21 +37,30 @@ public class ItemMapper {
                 .build();
     }
 
-    public ItemGetResponseDto toItemGetResponseDto(Item item) {
+    public ItemGetResponseDto toItemGetResponseDto(Item item, Long ownerId) {
         List<Booking> bookings = bookingRepository.findAllByItem_Id(item.getId());
+        List<Comment> comments = commentRepository.findAllByItem_Id(item.getId());
+        Booking lastBooking = null;
+        Booking nextBooking = null;
 
-        Booking lastBooking = bookings.stream()
-                .filter(booking -> booking.getStart().isBefore(LocalDateTime.now()))
-                .max(Comparator.comparing(Booking::getStart))
-                .orElse(null);
+        if(item.getOwner().getId().equals(ownerId)) {
+            lastBooking = bookings.stream()
+                    .filter(booking -> booking.getStatus().equals(BookingStatus.APPROVED))
+                    .filter(booking -> !booking.getEnd().isAfter(LocalDateTime.now())
+                            || !booking.getStart().isAfter(LocalDateTime.now()))
+                    .max(Comparator.comparing(Booking::getEnd))
+                    .orElse(null);
 
-        Booking nextBooking = bookings.stream()
-                .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
-                .min(Comparator.comparing(Booking::getStart))
-                .orElse(null);
+            nextBooking = bookings.stream()
+                    .filter(booking -> booking.getStatus().equals(BookingStatus.APPROVED))
+                    .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
+                    .min(Comparator.comparing(Booking::getStart))
+                    .orElse(null);
+        }
 
         assert lastBooking != null;
         assert nextBooking != null;
+        assert comments != null;
         return ItemGetResponseDto.builder()
                 .id(item.getId())
                 .name(item.getName())
@@ -52,15 +68,25 @@ public class ItemMapper {
                 .available(item.getAvailable())
                 .lastBooking(BookingMapper.toBookingForItemResponseDto(lastBooking))
                 .nextBooking(BookingMapper.toBookingForItemResponseDto(nextBooking))
+                .comments(ItemMapper.toCommentResponseDtoList(comments))
                 .build();
     }
 
-    public List<ItemGetResponseDto> toItemGetResponseDtoList(List<Item> items) {
+    public List<ItemGetResponseDto> toItemGetResponseDtoList(List<Item> items, Long ownerId) {
         List<ItemGetResponseDto> result = new ArrayList<>();
         for (Item item : items) {
-            result.add(toItemGetResponseDto(item));
+            result.add(toItemGetResponseDto(item, ownerId));
         }
-        return result;
+        return result.stream()
+                .sorted((o1, o2) -> {
+                    if(o1.getLastBooking() == null && o1.getNextBooking() == null) {
+                        return 1;
+                    } else if (o2.getLastBooking() == null && o2.getNextBooking() == null) {
+                        return -1;
+                    } else {
+                        return 0;
+                    }
+                }).collect(Collectors.toList());
     }
 
     public static ItemForBookingResponseDto toBookingResponseDto(Item item) {
@@ -70,7 +96,30 @@ public class ItemMapper {
                 .build();
     }
 
-    public static Item toEntity(ItemRequestDto itemRequestDto) {
-        return new Item(null, itemRequestDto.getName(), itemRequestDto.getDescription(), itemRequestDto.getAvailable(), null);
+    public static Item toItemEntity(ItemRequestDto itemRequestDto) {
+        return new Item(null, itemRequestDto.getName(), itemRequestDto.getDescription(), itemRequestDto.getAvailable(), null, null);
+    }
+
+    public static CommentResponseDto toCommentResponseDto(Comment comment) {
+        return CommentResponseDto.builder()
+                .id(comment.getId())
+                .text(comment.getText())
+                .authorName(comment.getAuthor().getName())
+                .created(comment.getCreated())
+                .build();
+    }
+
+    public static List<CommentResponseDto> toCommentResponseDtoList(List<Comment> comments) {
+        List<CommentResponseDto> result = new ArrayList<>();
+        for (Comment comment : comments) {
+            result.add(toCommentResponseDto(comment));
+        }
+        return result;
+    }
+
+    public static Comment toCommentEntity(CommentRequestDto commentRequestDto) {
+        return Comment.builder()
+                .text(commentRequestDto.getText())
+                .build();
     }
 }

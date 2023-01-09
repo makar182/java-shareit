@@ -63,6 +63,7 @@ create table if not exists comments
     text      varchar                                 not null,
     item_id   bigint                                  not null,
     author_id bigint                                  not null,
+    created   timestamp without time zone             not null,
     constraint pk_comment
         primary key (id),
     constraint fk_comment_author_id

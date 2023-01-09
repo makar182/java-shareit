@@ -4,10 +4,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import ru.practicum.shareit.item.dto.CommentResponseDto;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -27,20 +29,20 @@ public class Item {
     @ManyToOne
     @JoinColumn(name = "owner_id")
     private User owner;
-//    @OneToOne
-//    @JoinColumn(name = "request_id", referencedColumnName = "id")
-//    private ItemRequest itemRequest;
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments;
 
     public Item() {
 
     }
 
-    public Item(Long id, String name, String description, Boolean available, User user) {
+    public Item(Long id, String name, String description, Boolean available, User owner, List<Comment> comments) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.available = available;
-        this.owner = user;
+        this.owner = owner;
+        this.comments = comments;
     }
 
     @Override

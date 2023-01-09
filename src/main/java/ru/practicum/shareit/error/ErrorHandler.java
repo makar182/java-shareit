@@ -41,6 +41,48 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleBookingItemNotOwnedByUserException(final BookingItemNotOwnedByUserException e) {
+        log.error("Ошибка свойств бронирования: " + e.getMessage());
+        return new ErrorResponse("Ошибка свойств бронирования", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleIncorrectBookingDateException(final IncorrectBookingDateException e) {
+        log.error("Ошибка дат бронирования: " + e.getMessage());
+        return new ErrorResponse("Ошибка дат бронирования", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleIncorrectBookerException(final IncorrectBookerException e) {
+        log.error("Ошибка бронирования: " + e.getMessage());
+        return new ErrorResponse("Ошибка бронирования", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleItemNotBookedByUserException(final ItemNotBookedByUserException e) {
+        log.error("Ошибка: " + e.getMessage());
+        return new ErrorResponse("Ошибка", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleBookingChangeStatusException(final BookingChangeStatusException e) {
+        log.error("Ошибка смены статуса: " + e.getMessage());
+        return new ErrorResponse("Ошибка смены статуса", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleUserNotAllowedToGetBookingException(final UserNotAllowedToGetBookingException e) {
+        log.error("Ошибка доступа: " + e.getMessage());
+        return new ErrorResponse("Ошибка доступа", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleItemNotValidPropertiesException(final ItemNotValidPropertiesException e) {
         log.error("Ошибка валидации предмета: " + e.getMessage());
         return new ErrorResponse("Ошибка валидации предмета", e.getMessage());
@@ -58,6 +100,13 @@ public class ErrorHandler {
     public ErrorResponse handleDataIntegrityViolationException(final DataIntegrityViolationException e) {
         log.error("Ошибка валидации: " + e.getMessage());
         return new ErrorResponse("Ошибка валидации", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleUnsupportedBookingStatusException(final UnsupportedBookingStatusException e) {
+        log.error(e.getMessage());
+        return new ErrorResponse("Unknown state: UNSUPPORTED_STATUS", e.getMessage());
     }
 
     @ExceptionHandler
