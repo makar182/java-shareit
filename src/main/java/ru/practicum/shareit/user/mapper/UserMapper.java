@@ -17,7 +17,7 @@ public class UserMapper {
                 .build();
     }
 
-    public static UserInBookingResponseDto toDtoForBookingResponse(User user) {
+    public static UserInBookingResponseDto toBookingResponseDto(User user) {
         return UserInBookingResponseDto.builder()
                 .id(user.getId())
                 .build();

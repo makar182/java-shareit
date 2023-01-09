@@ -7,17 +7,17 @@ import ru.practicum.shareit.booking.enums.BookingState;
 import ru.practicum.shareit.booking.enums.BookingStatus;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.exception.BookingNotExistException;
-import ru.practicum.shareit.exception.BookingNotValidPropertiesException;
-import ru.practicum.shareit.exception.ItemNotExistException;
-import ru.practicum.shareit.exception.UserNotExistException;
+import ru.practicum.shareit.exception.*;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -52,16 +52,101 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Booking> getBookingsByUser(Long userId, BookingState state) {
-        return null;
+        userRepository.findById(userId).orElseThrow(() -> {
+            log.info(String.format("Пользователя №%d не существует!", userId));
+            throw new UserNotExistException(String.format("Пользователя №%d не существует!", userId));
+        });
+
+        if(state.equals(BookingState.ALL)) {
+            return bookingRepository.findAllByBooker_Id(userId).stream()
+                    .sorted(Comparator.comparing(Booking::getStart).reversed())
+                    .collect(Collectors.toList());
+        } else if (state.equals(BookingState.CURRENT)) {
+            return bookingRepository.findAllByBooker_Id(userId).stream()
+                    .filter(booking -> booking.getStatus().equals(BookingStatus.APPROVED))
+                    .filter(booking -> booking.getStart().isBefore(LocalDateTime.now())
+                                        && booking.getEnd().isAfter(LocalDateTime.now()))
+                    .sorted(Comparator.comparing(Booking::getStart).reversed())
+                    .collect(Collectors.toList());
+        } else if (state.equals(BookingState.PAST)) {
+            return bookingRepository.findAllByBooker_Id(userId).stream()
+                    .filter(booking -> booking.getStatus().equals(BookingStatus.APPROVED))
+                    .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
+                    .sorted(Comparator.comparing(Booking::getStart).reversed())
+                    .collect(Collectors.toList());
+        } else if (state.equals(BookingState.FUTURE)) {
+            return bookingRepository.findAllByBooker_Id(userId).stream()
+                    .filter(booking -> booking.getStatus().equals(BookingStatus.APPROVED))
+                    .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
+                    .sorted(Comparator.comparing(Booking::getStart).reversed())
+                    .collect(Collectors.toList());
+        } else if (state.equals(BookingState.WAITING)) {
+            return bookingRepository.findAllByBooker_Id(userId).stream()
+                    .filter(booking -> booking.getStatus().equals(BookingStatus.WAITING))
+                    .sorted(Comparator.comparing(Booking::getStart).reversed())
+                    .collect(Collectors.toList());
+        } else if (state.equals(BookingState.REJECTED)) {
+            return bookingRepository.findAllByBooker_Id(userId).stream()
+                    .filter(booking -> booking.getStatus().equals(BookingStatus.REJECTED))
+                    .sorted(Comparator.comparing(Booking::getStart).reversed())
+                    .collect(Collectors.toList());
+        } else {
+            return null;
+        }
     }
 
     @Override
     public List<Booking> getBookingsByOwner(Long userId, BookingState state) {
-        return null;
+        userRepository.findById(userId).orElseThrow(() -> {
+            log.info(String.format("Пользователя №%d не существует!", userId));
+            throw new UserNotExistException(String.format("Пользователя №%d не существует!", userId));
+        });
+
+        if(state.equals(BookingState.ALL)) {
+            return bookingRepository.findAllByItem_Owner_Id(userId).stream()
+                    .sorted(Comparator.comparing(Booking::getStart).reversed())
+                    .collect(Collectors.toList());
+        } else if (state.equals(BookingState.CURRENT)) {
+            return bookingRepository.findAllByItem_Owner_Id(userId).stream()
+                    .filter(booking -> booking.getStatus().equals(BookingStatus.APPROVED))
+                    .filter(booking -> booking.getStart().isBefore(LocalDateTime.now())
+                            && booking.getEnd().isAfter(LocalDateTime.now()))
+                    .sorted(Comparator.comparing(Booking::getStart).reversed())
+                    .collect(Collectors.toList());
+        } else if (state.equals(BookingState.PAST)) {
+            return bookingRepository.findAllByItem_Owner_Id(userId).stream()
+                    .filter(booking -> booking.getStatus().equals(BookingStatus.APPROVED))
+                    .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
+                    .sorted(Comparator.comparing(Booking::getStart).reversed())
+                    .collect(Collectors.toList());
+        } else if (state.equals(BookingState.FUTURE)) {
+            return bookingRepository.findAllByItem_Owner_Id(userId).stream()
+                    .filter(booking -> booking.getStatus().equals(BookingStatus.APPROVED))
+                    .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
+                    .sorted(Comparator.comparing(Booking::getStart).reversed())
+                    .collect(Collectors.toList());
+        } else if (state.equals(BookingState.WAITING)) {
+            return bookingRepository.findAllByItem_Owner_Id(userId).stream()
+                    .filter(booking -> booking.getStatus().equals(BookingStatus.WAITING))
+                    .sorted(Comparator.comparing(Booking::getStart).reversed())
+                    .collect(Collectors.toList());
+        } else if (state.equals(BookingState.REJECTED)) {
+            return bookingRepository.findAllByItem_Owner_Id(userId).stream()
+                    .filter(booking -> booking.getStatus().equals(BookingStatus.REJECTED))
+                    .sorted(Comparator.comparing(Booking::getStart).reversed())
+                    .collect(Collectors.toList());
+        } else {
+            return null;
+        }
     }
 
     @Override
     public Booking addBooking(Booking booking, Long userId) {
+        if(booking.getStart().isAfter(booking.getEnd())) {
+            log.info("Дата начала бронирования не может быть позже даты окончания!");
+            throw new BookingNotValidPropertiesException("Дата начала бронирования не может быть позже даты окончания!");
+        }
+
         User user = userRepository.findById(userId).orElseThrow(() -> {
             log.info(String.format("Пользователя №%d не существует!", userId));
             throw new UserNotExistException(String.format("Пользователя №%d не существует!", userId));
@@ -77,6 +162,11 @@ public class BookingServiceImpl implements BookingService {
             item = booking.getItem();
         }
 
+        if (item.getAvailable().equals(false)) {
+            log.info(String.format("Предмет №%d не доступен для бронирования!", booking.getItem().getId()));
+            throw new ItemNotAvailableException(String.format("Предмет №%d не доступен для бронирования!", booking.getItem().getId()));
+        }
+
         Booking newBooking = new Booking(null, booking.getStart(), booking.getEnd(), item, user, booking.getStatus());
         return bookingRepository.saveAndFlush(newBooking);
     }
@@ -89,8 +179,8 @@ public class BookingServiceImpl implements BookingService {
         });
 
         if (!booking.getItem().getOwner().getId().equals(userId)) {
-            log.info(String.format("Предмет %s из бронирования №%d не принадлежит пользователю №%d!", ItemMapper.toDtoForBookingResponse(booking.getItem()), bookingId, userId));
-            throw new BookingNotValidPropertiesException(String.format("Предмет %s из бронирования №%d не принадлежит пользователю №%d!", ItemMapper.toDtoForBookingResponse(booking.getItem()), bookingId, userId));
+            log.info(String.format("Предмет %s из бронирования №%d не принадлежит пользователю №%d!", ItemMapper.toBookingResponseDto(booking.getItem()), bookingId, userId));
+            throw new BookingNotValidPropertiesException(String.format("Предмет %s из бронирования №%d не принадлежит пользователю №%d!", ItemMapper.toBookingResponseDto(booking.getItem()), bookingId, userId));
         }
 
         if (approved) {

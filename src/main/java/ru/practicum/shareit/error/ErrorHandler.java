@@ -47,6 +47,13 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleItemNotAvailableException(final ItemNotAvailableException e) {
+        log.error("Ошибка валидации предмета: " + e.getMessage());
+        return new ErrorResponse("Ошибка валидации предмета", e.getMessage());
+    }
+
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleDataIntegrityViolationException(final DataIntegrityViolationException e) {
         log.error("Ошибка валидации: " + e.getMessage());

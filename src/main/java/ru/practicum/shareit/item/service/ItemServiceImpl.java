@@ -2,9 +2,12 @@ package ru.practicum.shareit.item.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.ItemNotExistException;
 import ru.practicum.shareit.exception.ItemNotValidPropertiesException;
 import ru.practicum.shareit.exception.UserNotExistException;
+import ru.practicum.shareit.item.dto.ItemGetResponseDto;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
@@ -17,10 +20,12 @@ import java.util.List;
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
+    ItemMapper itemMapper;
 
-    public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository) {
+    public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository, BookingRepository bookingRepository) {
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
+        itemMapper = new ItemMapper(bookingRepository);
     }
 
     @Override
@@ -77,31 +82,33 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Item getItemById(Long itemId) {
+    public ItemGetResponseDto getItemById(Long itemId) {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> {
             log.info(String.format("Предмет %d не найден", itemId));
             throw new ItemNotExistException(String.format("Предмет %d не найден", itemId));
         });
-        log.info(String.format("Предмет %s выгружен", item));
-        return item;
+        ItemGetResponseDto result = itemMapper.toItemGetResponseDto(item);
+        log.info(String.format("Предмет %s выгружен", result));
+        return result;
     }
 
     @Override
-    public List<Item> getItemsByUserId(Long userId) {
-        List<Item> items = itemRepository.findAllByOwnerId(userId);
+    public List<ItemGetResponseDto> getItemsByUserId(Long userId) {
+        List<ItemGetResponseDto> result = itemMapper.toItemGetResponseDtoList(itemRepository.findAllByOwnerId(userId));
         log.info(String.format("Выгружен список предметов по пользователю %d", userId));
-        return items;
+        return result;
     }
 
     @Override
-    public List<Item> getItemsByDescription(String itemDescription) {
+    public List<ItemGetResponseDto> getItemsByDescription(String itemDescription) {
         if (itemDescription.isBlank()) {
             log.info("Пустая строка поиска /search");
             return List.of();
         } else {
             List<Item> items = itemRepository.findAllByDescriptionContainingIgnoreCaseAndAvailable(itemDescription.trim(), true);
+            List<ItemGetResponseDto> result = itemMapper.toItemGetResponseDtoList(items);
             log.info(String.format("Выгружен список предметов по описанию '%s'", itemDescription));
-            return items;
+            return result;
         }
     }
 }

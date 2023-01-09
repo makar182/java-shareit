@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +12,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @Builder
-public class ItemDtoResponse {
+public class ItemResponseDto {
     private Long id;
     @NotNull(message = "У вещи должно быть название!")
     @NotBlank(message = "У вещи должно быть название!")
@@ -23,15 +22,12 @@ public class ItemDtoResponse {
     private String description;
     @NotNull
     private Boolean available;
-    @NotNull
-    @JsonIgnore
-    private Long userId;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ItemDtoResponse that = (ItemDtoResponse) o;
+        ItemResponseDto that = (ItemResponseDto) o;
         return name.equals(that.name);
     }
 

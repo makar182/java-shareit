@@ -2,9 +2,8 @@ package ru.practicum.shareit.booking.controller;
 
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingRequestDto;
-import ru.practicum.shareit.booking.enums.BookingState;
-import ru.practicum.shareit.booking.enums.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingResponseDto;
+import ru.practicum.shareit.booking.enums.BookingState;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.service.BookingService;
 
@@ -28,13 +27,13 @@ public class BookingController {
 
     @GetMapping
     public List<BookingResponseDto> getBookingsByUser(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                      @RequestParam("state") BookingState state) {
+                                                      @RequestParam(name = "state", required = false, defaultValue = "ALL") BookingState state) {
         return BookingMapper.toDtoList(bookingService.getBookingsByUser(userId, state));
     }
 
     @GetMapping("/owner")
     public List<BookingResponseDto> getBookingsByOwner(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                       @RequestParam("state") BookingState state) {
+                                                       @RequestParam(name = "state", required = false, defaultValue = "ALL") BookingState state) {
         return BookingMapper.toDtoList(bookingService.getBookingsByOwner(userId, state));
     }
 
