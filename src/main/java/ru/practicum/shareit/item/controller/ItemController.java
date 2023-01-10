@@ -24,16 +24,16 @@ public class ItemController {
     }
 
     @PostMapping
-    public ItemResponseDto addItem(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                   @Validated(OnAdd.class) @RequestBody ItemRequestDto itemRequestDto) {
-        return itemMapper.toItemResponseDto(itemService.addItem(userId, ItemMapper.toItemEntity(itemRequestDto)));
+    public ItemMainResponseDto addItem(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                       @Validated(OnAdd.class) @RequestBody ItemRequestDto itemRequestDto) {
+        return itemMapper.toItemMainResponseDto(itemService.addItem(userId, ItemMapper.toItemEntity(itemRequestDto)));
     }
 
     @PatchMapping("/{itemId}")
-    public ItemResponseDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                      @PathVariable("itemId") Long itemId,
-                                      @Validated(OnUpdate.class) @RequestBody ItemRequestDto itemRequestDto) {
-        return itemMapper.toItemResponseDto(itemService.updateItem(userId, itemId, ItemMapper.toItemEntity(itemRequestDto)));
+    public ItemMainResponseDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                          @PathVariable("itemId") Long itemId,
+                                          @Validated(OnUpdate.class) @RequestBody ItemRequestDto itemRequestDto) {
+        return itemMapper.toItemMainResponseDto(itemService.updateItem(userId, itemId, ItemMapper.toItemEntity(itemRequestDto)));
     }
 
     @GetMapping("/{itemId}")

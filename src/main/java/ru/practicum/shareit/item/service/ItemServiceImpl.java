@@ -25,7 +25,7 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
-    ItemMapper itemMapper;
+    private final ItemMapper itemMapper;
 
     public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository, BookingRepository bookingRepository, CommentRepository commentRepository) {
         this.itemRepository = itemRepository;
@@ -37,10 +37,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item addItem(Long userId, Item item) {
-        User user = userRepository.findById(userId).orElseThrow(() -> {
-            log.info(String.format("Пользователь %d не существует", userId));
-            throw new UserNotExistException(String.format("Пользователь %d не существует", userId));
-        });
+        User user = getUserIfExists(userId);
 
         item.setOwner(user);
         Item newItem = itemRepository.saveAndFlush(item);
@@ -121,7 +118,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Comment addComment(Long userId, Long itemId, Comment comment) {
-        User user = checkUserExists(userId);
+        User user = getUserIfExists(userId);
 
         Booking bookingExist = bookingRepository.findAllByItem_Id(itemId).stream()
                 .filter(booking -> booking.getBooker().getId().equals(userId))
@@ -137,7 +134,7 @@ public class ItemServiceImpl implements ItemService {
         return commentRepository.saveAndFlush(comment);
     }
 
-    private User checkUserExists(Long userId) {
+    private User getUserIfExists(Long userId) {
         return userRepository.findById(userId).orElseThrow(() -> {
             log.info(String.format("Пользователя №%d не существует!", userId));
             throw new UserNotExistException(String.format("Пользователя №%d не существует!", userId));
