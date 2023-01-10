@@ -3,7 +3,6 @@ package ru.practicum.shareit.item.mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.enums.BookingStatus;
-import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.item.dto.*;
@@ -28,8 +27,8 @@ public class ItemMapper {
         this.commentRepository = commentRepository;
     }
 
-    public ItemResponseDto toItemResponseDto(Item item) {
-        return ItemResponseDto.builder()
+    public ItemMainResponseDto toItemMainResponseDto(Item item) {
+        return ItemMainResponseDto.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
@@ -58,17 +57,15 @@ public class ItemMapper {
                     .orElse(null);
         }
 
-        assert lastBooking != null;
-        assert nextBooking != null;
         assert comments != null;
         return ItemGetResponseDto.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
-                .lastBooking(BookingMapper.toBookingForItemResponseDto(lastBooking))
-                .nextBooking(BookingMapper.toBookingForItemResponseDto(nextBooking))
-                .comments(ItemMapper.toCommentResponseDtoList(comments))
+                .lastBooking(lastBooking == null ? null : new ItemGetResponseDto.LastAndNextBookings(lastBooking))
+                .nextBooking(nextBooking == null ? null : new ItemGetResponseDto.LastAndNextBookings(nextBooking))
+                .comments(getComments(comments))
                 .build();
     }
 
@@ -89,13 +86,6 @@ public class ItemMapper {
                 }).collect(Collectors.toList());
     }
 
-    public static ItemForBookingResponseDto toBookingResponseDto(Item item) {
-        return ItemForBookingResponseDto.builder()
-                .id(item.getId())
-                .name(item.getName())
-                .build();
-    }
-
     public static Item toItemEntity(ItemRequestDto itemRequestDto) {
         return new Item(null, itemRequestDto.getName(), itemRequestDto.getDescription(), itemRequestDto.getAvailable(), null, null);
     }
@@ -109,17 +99,17 @@ public class ItemMapper {
                 .build();
     }
 
-    public static List<CommentResponseDto> toCommentResponseDtoList(List<Comment> comments) {
-        List<CommentResponseDto> result = new ArrayList<>();
-        for (Comment comment : comments) {
-            result.add(toCommentResponseDto(comment));
-        }
-        return result;
-    }
-
     public static Comment toCommentEntity(CommentRequestDto commentRequestDto) {
         return Comment.builder()
                 .text(commentRequestDto.getText())
                 .build();
+    }
+
+    private List<ItemGetResponseDto.Comments> getComments(List<Comment> comments) {
+        List<ItemGetResponseDto.Comments> result = new ArrayList<>();
+        for (Comment comment : comments) {
+            result.add(new ItemGetResponseDto.Comments(comment));
+        }
+        return result;
     }
 }

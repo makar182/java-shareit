@@ -12,7 +12,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @Builder
-public class ItemResponseDto {
+public class ItemMainResponseDto {
     private Long id;
     @NotNull(message = "У вещи должно быть название!")
     @NotBlank(message = "У вещи должно быть название!")
@@ -27,7 +27,7 @@ public class ItemResponseDto {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ItemResponseDto that = (ItemResponseDto) o;
+        ItemMainResponseDto that = (ItemMainResponseDto) o;
         return name.equals(that.name);
     }
 

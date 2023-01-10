@@ -2,22 +2,20 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.enums.BookingState;
 import ru.practicum.shareit.booking.enums.BookingStatus;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.*;
-import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -41,8 +39,7 @@ public class BookingServiceImpl implements BookingService {
             throw new BookingNotExistException(String.format("Бронирования №%d не существует!", bookingId));
         });
 
-        if (!userId.equals(booking.getItem().getOwner().getId())
-                && !userId.equals(booking.getBooker().getId())) {
+        if (!userId.equals(booking.getItem().getOwner().getId()) && !userId.equals(booking.getBooker().getId())) {
             log.info(String.format("Пользователь №%d не может просматривать бронирование №%d!", userId, bookingId));
             throw new UserNotAllowedToGetBookingException(String.format("Пользователь №%d не может просматривать бронирование №%d!", userId, bookingId));
         }
@@ -52,40 +49,22 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Booking> getBookingsByBooker(Long userId, String state) {
-        checkUserExists(userId);
+        getUserIfExists(userId);
 
-        BookingState stateEnum = getBookingStateByString(state);
+        BookingState stateEnum = BookingState.getByString(state);
 
         if (stateEnum.equals(BookingState.ALL)) {
-            return bookingRepository.findAllByBooker_Id(userId).stream()
-                    .sorted(Comparator.comparing(Booking::getStart).reversed())
-                    .collect(Collectors.toList());
+            return bookingRepository.findAllByBooker_Id(userId, Sort.by(Sort.Direction.DESC, "start"));
         } else if (stateEnum.equals(BookingState.CURRENT)) {
-            return bookingRepository.findAllByBooker_Id(userId).stream()
-                    .filter(booking -> booking.getStart().isBefore(LocalDateTime.now())
-                            && booking.getEnd().isAfter(LocalDateTime.now()))
-                    .sorted(Comparator.comparing(Booking::getStart).reversed())
-                    .collect(Collectors.toList());
+            return bookingRepository.findAllByBooker_IdAndStartIsBeforeAndEndIsAfter(userId, LocalDateTime.now(), LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
         } else if (stateEnum.equals(BookingState.PAST)) {
-            return bookingRepository.findAllByBooker_Id(userId).stream()
-                    .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
-                    .sorted(Comparator.comparing(Booking::getStart).reversed())
-                    .collect(Collectors.toList());
+            return bookingRepository.findAllByBooker_IdAndEndIsBefore(userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
         } else if (stateEnum.equals(BookingState.FUTURE)) {
-            return bookingRepository.findAllByBooker_Id(userId).stream()
-                    .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
-                    .sorted(Comparator.comparing(Booking::getStart).reversed())
-                    .collect(Collectors.toList());
+            return bookingRepository.findAllByBooker_IdAndStartIsAfter(userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
         } else if (stateEnum.equals(BookingState.WAITING)) {
-            return bookingRepository.findAllByBooker_Id(userId).stream()
-                    .filter(booking -> booking.getStatus().equals(BookingStatus.WAITING))
-                    .sorted(Comparator.comparing(Booking::getStart).reversed())
-                    .collect(Collectors.toList());
+            return bookingRepository.findAllByBooker_IdAndStatus(userId, BookingStatus.WAITING, Sort.by(Sort.Direction.DESC, "start"));
         } else if (stateEnum.equals(BookingState.REJECTED)) {
-            return bookingRepository.findAllByBooker_Id(userId).stream()
-                    .filter(booking -> booking.getStatus().equals(BookingStatus.REJECTED))
-                    .sorted(Comparator.comparing(Booking::getStart).reversed())
-                    .collect(Collectors.toList());
+            return bookingRepository.findAllByBooker_IdAndStatus(userId, BookingStatus.REJECTED, Sort.by(Sort.Direction.DESC, "start"));
         } else {
             return null;
         }
@@ -93,40 +72,22 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public List<Booking> getBookingsByOwner(Long userId, String state) {
-        checkUserExists(userId);
+        getUserIfExists(userId);
 
-        BookingState stateEnum = getBookingStateByString(state);
+        BookingState stateEnum = BookingState.getByString(state);
 
         if (stateEnum.equals(BookingState.ALL)) {
-            return bookingRepository.findAllByItem_Owner_Id(userId).stream()
-                    .sorted(Comparator.comparing(Booking::getStart).reversed())
-                    .collect(Collectors.toList());
+            return bookingRepository.findAllByItem_Owner_Id(userId, Sort.by(Sort.Direction.DESC, "start"));
         } else if (stateEnum.equals(BookingState.CURRENT)) {
-            return bookingRepository.findAllByItem_Owner_Id(userId).stream()
-                    .filter(booking -> booking.getStart().isBefore(LocalDateTime.now())
-                            && booking.getEnd().isAfter(LocalDateTime.now()))
-                    .sorted(Comparator.comparing(Booking::getStart).reversed())
-                    .collect(Collectors.toList());
+            return bookingRepository.findAllByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(userId, LocalDateTime.now(), LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
         } else if (stateEnum.equals(BookingState.PAST)) {
-            return bookingRepository.findAllByItem_Owner_Id(userId).stream()
-                    .filter(booking -> booking.getEnd().isBefore(LocalDateTime.now()))
-                    .sorted(Comparator.comparing(Booking::getStart).reversed())
-                    .collect(Collectors.toList());
+            return bookingRepository.findAllByItem_Owner_IdAndEndIsBefore(userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
         } else if (stateEnum.equals(BookingState.FUTURE)) {
-            return bookingRepository.findAllByItem_Owner_Id(userId).stream()
-                    .filter(booking -> booking.getStart().isAfter(LocalDateTime.now()))
-                    .sorted(Comparator.comparing(Booking::getStart).reversed())
-                    .collect(Collectors.toList());
+            return bookingRepository.findAllByItem_Owner_IdAndStartIsAfter(userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
         } else if (stateEnum.equals(BookingState.WAITING)) {
-            return bookingRepository.findAllByItem_Owner_Id(userId).stream()
-                    .filter(booking -> booking.getStatus().equals(BookingStatus.WAITING))
-                    .sorted(Comparator.comparing(Booking::getStart).reversed())
-                    .collect(Collectors.toList());
+            return bookingRepository.findAllByItem_Owner_IdAndStatus(userId, BookingStatus.WAITING, Sort.by(Sort.Direction.DESC, "start"));
         } else if (stateEnum.equals(BookingState.REJECTED)) {
-            return bookingRepository.findAllByItem_Owner_Id(userId).stream()
-                    .filter(booking -> booking.getStatus().equals(BookingStatus.REJECTED))
-                    .sorted(Comparator.comparing(Booking::getStart).reversed())
-                    .collect(Collectors.toList());
+            return bookingRepository.findAllByItem_Owner_IdAndStatus(userId, BookingStatus.REJECTED, Sort.by(Sort.Direction.DESC, "start"));
         } else {
             return null;
         }
@@ -139,10 +100,7 @@ public class BookingServiceImpl implements BookingService {
             throw new IncorrectBookingDateException("Дата начала бронирования не может быть позже даты окончания!");
         }
 
-        User user = userRepository.findById(userId).orElseThrow(() -> {
-            log.info(String.format("Пользователя №%d не существует!", userId));
-            throw new UserNotExistException(String.format("Пользователя №%d не существует!", userId));
-        });
+        User user = getUserIfExists(userId);
 
         Item item;
         if (booking.getItem().getName() == null) {
@@ -176,8 +134,8 @@ public class BookingServiceImpl implements BookingService {
         });
 
         if (!booking.getItem().getOwner().getId().equals(userId)) {
-            log.info(String.format("Предмет %s из бронирования №%d не принадлежит пользователю №%d!", ItemMapper.toBookingResponseDto(booking.getItem()), bookingId, userId));
-            throw new BookingItemNotOwnedByUserException(String.format("Предмет %s из бронирования №%d не принадлежит пользователю №%d!", ItemMapper.toBookingResponseDto(booking.getItem()), bookingId, userId));
+            log.info(String.format("Предмет %s из бронирования №%d не принадлежит пользователю №%d!", booking.getItem(), bookingId, userId));
+            throw new BookingItemNotOwnedByUserException(String.format("Предмет %s из бронирования №%d не принадлежит пользователю №%d!", booking.getItem(), bookingId, userId));
         }
 
         if (booking.getStatus().equals(BookingStatus.APPROVED) || booking.getStatus().equals(BookingStatus.REJECTED)) {
@@ -195,19 +153,10 @@ public class BookingServiceImpl implements BookingService {
         return booking;
     }
 
-    private void checkUserExists(Long userId) {
-        userRepository.findById(userId).orElseThrow(() -> {
+    private User getUserIfExists(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> {
             log.info(String.format("Пользователя №%d не существует!", userId));
             throw new UserNotExistException(String.format("Пользователя №%d не существует!", userId));
         });
-    }
-
-    private BookingState getBookingStateByString(String state) {
-        try {
-            return BookingState.valueOf(state);
-        } catch (RuntimeException e) {
-            log.info(String.format("Неподдерживаемый статус %s", state));
-            throw new UnsupportedBookingStatusException(String.format("Неподдерживаемый статус %s", state));
-        }
     }
 }

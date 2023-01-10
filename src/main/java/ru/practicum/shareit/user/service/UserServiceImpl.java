@@ -8,7 +8,6 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -21,13 +20,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(Long userId) {
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isEmpty()) {
-            log.info(String.format("Пользователь %d не найден", userId));
-            throw new UserNotExistException(String.format("Пользователь %d не найден", userId));
-        }
+        User user = getUserIfExists(userId);
         log.info(String.format("Пользователь %s выгружен по id.", user));
-        return user.get();
+        return user;
     }
 
     @Override
@@ -39,7 +34,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User addUser(User user) {
-
         User result = userRepository.saveAndFlush(user);
         log.info(String.format("Пользователь %s добавлен.", result));
         return result;
@@ -47,10 +41,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User updateUser(Long userId, User user) {
-        User oldUser = userRepository.findById(userId).orElseThrow(() -> {
-            log.info(String.format("Пользователь %d не существует!", userId));
-            throw new UserNotExistException(String.format("Пользователь %d не существует!", userId));
-        });
+        User oldUser = getUserIfExists(userId);
 
         if (user.getEmail() != null
                 && !user.getEmail().isBlank()
@@ -59,7 +50,6 @@ public class UserServiceImpl implements UserService {
         ) {
             log.info(String.format("Электронная почта %s не принадлежит пользователю и она занята другим пользователем!", user.getEmail()));
             throw new DuplicateUserEmailException(String.format("Электронная почта %s не принадлежит пользователю и она занята другим пользователем!", user.getEmail()));
-
         }
 
         String newEmail;
@@ -77,7 +67,6 @@ public class UserServiceImpl implements UserService {
         }
 
         User result = new User(oldUser.getId(), newName, newEmail);
-
         User newUser = userRepository.saveAndFlush(result);
 
         if (newUser.getId() == null) {
@@ -93,5 +82,12 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long userId) {
         userRepository.deleteById(userId);
         log.info(String.format("Пользователь %d удалён.", userId));
+    }
+
+    private User getUserIfExists(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> {
+            log.info(String.format("Пользователя №%d не существует!", userId));
+            throw new UserNotExistException(String.format("Пользователя №%d не существует!", userId));
+        });
     }
 }

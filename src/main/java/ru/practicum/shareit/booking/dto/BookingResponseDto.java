@@ -4,8 +4,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import ru.practicum.shareit.booking.enums.BookingStatus;
-import ru.practicum.shareit.item.dto.ItemForBookingResponseDto;
-import ru.practicum.shareit.user.dto.UserInBookingResponseDto;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -23,7 +23,29 @@ public class BookingResponseDto {
     @NotNull
     private BookingStatus status;
     @NotNull
-    private UserInBookingResponseDto booker;
+    private Booker booker;
     @NotNull
-    private ItemForBookingResponseDto item;
+    private BookedItem item;
+
+    @Getter
+    @Setter
+    public static class Booker {
+        private Long id;
+
+        public Booker(User user) {
+            this.id = user.getId();
+        }
+    }
+
+    @Getter
+    @Setter
+    public static class BookedItem {
+        private Long id;
+        private String name;
+
+        public BookedItem(Item item) {
+            this.id = item.getId();
+            this.name = item.getName();
+        }
+    }
 }
