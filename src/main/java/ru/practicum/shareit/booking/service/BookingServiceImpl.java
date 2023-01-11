@@ -52,19 +52,20 @@ public class BookingServiceImpl implements BookingService {
         getUserIfExists(userId);
 
         BookingState stateEnum = BookingState.getByString(state);
+        Sort sortBy = Sort.by(Sort.Direction.DESC, "start");
 
         if (stateEnum.equals(BookingState.ALL)) {
-            return bookingRepository.findAllByBooker_Id(userId, Sort.by(Sort.Direction.DESC, "start"));
+            return bookingRepository.findAllByBooker_Id(userId, sortBy);
         } else if (stateEnum.equals(BookingState.CURRENT)) {
-            return bookingRepository.findAllByBooker_IdAndStartIsBeforeAndEndIsAfter(userId, LocalDateTime.now(), LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
+            return bookingRepository.findAllByBooker_IdAndStartIsBeforeAndEndIsAfter(userId, LocalDateTime.now(), LocalDateTime.now(), sortBy);
         } else if (stateEnum.equals(BookingState.PAST)) {
-            return bookingRepository.findAllByBooker_IdAndEndIsBefore(userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
+            return bookingRepository.findAllByBooker_IdAndEndIsBefore(userId, LocalDateTime.now(), sortBy);
         } else if (stateEnum.equals(BookingState.FUTURE)) {
-            return bookingRepository.findAllByBooker_IdAndStartIsAfter(userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
+            return bookingRepository.findAllByBooker_IdAndStartIsAfter(userId, LocalDateTime.now(), sortBy);
         } else if (stateEnum.equals(BookingState.WAITING)) {
-            return bookingRepository.findAllByBooker_IdAndStatus(userId, BookingStatus.WAITING, Sort.by(Sort.Direction.DESC, "start"));
+            return bookingRepository.findAllByBooker_IdAndStatus(userId, BookingStatus.WAITING, sortBy);
         } else if (stateEnum.equals(BookingState.REJECTED)) {
-            return bookingRepository.findAllByBooker_IdAndStatus(userId, BookingStatus.REJECTED, Sort.by(Sort.Direction.DESC, "start"));
+            return bookingRepository.findAllByBooker_IdAndStatus(userId, BookingStatus.REJECTED, sortBy);
         } else {
             return null;
         }
@@ -75,19 +76,20 @@ public class BookingServiceImpl implements BookingService {
         getUserIfExists(userId);
 
         BookingState stateEnum = BookingState.getByString(state);
+        Sort sortBy = Sort.by(Sort.Direction.DESC, "start");
 
         if (stateEnum.equals(BookingState.ALL)) {
-            return bookingRepository.findAllByItem_Owner_Id(userId, Sort.by(Sort.Direction.DESC, "start"));
+            return bookingRepository.findAllByItem_Owner_Id(userId, sortBy);
         } else if (stateEnum.equals(BookingState.CURRENT)) {
-            return bookingRepository.findAllByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(userId, LocalDateTime.now(), LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
+            return bookingRepository.findAllByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(userId, LocalDateTime.now(), LocalDateTime.now(), sortBy);
         } else if (stateEnum.equals(BookingState.PAST)) {
-            return bookingRepository.findAllByItem_Owner_IdAndEndIsBefore(userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
+            return bookingRepository.findAllByItem_Owner_IdAndEndIsBefore(userId, LocalDateTime.now(), sortBy);
         } else if (stateEnum.equals(BookingState.FUTURE)) {
-            return bookingRepository.findAllByItem_Owner_IdAndStartIsAfter(userId, LocalDateTime.now(), Sort.by(Sort.Direction.DESC, "start"));
+            return bookingRepository.findAllByItem_Owner_IdAndStartIsAfter(userId, LocalDateTime.now(), sortBy);
         } else if (stateEnum.equals(BookingState.WAITING)) {
-            return bookingRepository.findAllByItem_Owner_IdAndStatus(userId, BookingStatus.WAITING, Sort.by(Sort.Direction.DESC, "start"));
+            return bookingRepository.findAllByItem_Owner_IdAndStatus(userId, BookingStatus.WAITING, sortBy);
         } else if (stateEnum.equals(BookingState.REJECTED)) {
-            return bookingRepository.findAllByItem_Owner_IdAndStatus(userId, BookingStatus.REJECTED, Sort.by(Sort.Direction.DESC, "start"));
+            return bookingRepository.findAllByItem_Owner_IdAndStatus(userId, BookingStatus.REJECTED, sortBy);
         } else {
             return null;
         }
