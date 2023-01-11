@@ -20,50 +20,36 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(Long userId) {
-        User user = userRepository.getUserById(userId).orElseThrow(() -> {
-            log.info(String.format("Пользователь %d не найден", userId));
-            return null;
-        });
+        User user = getUserIfExists(userId);
         log.info(String.format("Пользователь %s выгружен по id.", user));
         return user;
     }
 
     @Override
     public List<User> getUsers() {
-        List<User> users = userRepository.getUsers();
+        List<User> users = userRepository.findAll();
         log.info("Выгружены все пользователи");
         return users;
     }
 
     @Override
     public User addUser(User user) {
-        if (userRepository.checkUserEmailBusy(user.getEmail())) {
-            log.info(String.format("Пользователь с почтой %s уже зарегистрирован", user.getEmail()));
-            throw new DuplicateUserEmailException(String.format("Пользователь с почтой %s уже зарегистрирован", user.getEmail()));
-        }
-
-        User result = userRepository.addUser(user).orElseThrow(() -> {
-            log.info(String.format("Пользователь %s не добавлен", user));
-            return null;
-        });
+        User result = userRepository.saveAndFlush(user);
         log.info(String.format("Пользователь %s добавлен.", result));
         return result;
     }
 
     @Override
     public User updateUser(Long userId, User user) {
-        User oldUser = userRepository.getUserById(userId).orElseThrow(() -> {
-            log.info(String.format("Пользователь %d не существует!", userId));
-            throw new UserNotExistException(String.format("Пользователь %d не существует!", userId));
-        });
+        User oldUser = getUserIfExists(userId);
 
         if (user.getEmail() != null
                 && !user.getEmail().isBlank()
                 && !oldUser.getEmail().equals(user.getEmail())
-                && userRepository.checkUserEmailBusy(user.getEmail())) {
-            log.info(String.format("Электронная почта %s уже зарегистрирована другим пользователем", user.getEmail()));
-            throw new DuplicateUserEmailException(String.format("Электронная почта %s уже зарегистрирована другим пользователем", user.getEmail()));
-
+                && userRepository.existsByEmail(user.getEmail())
+        ) {
+            log.info(String.format("Электронная почта %s не принадлежит пользователю и она занята другим пользователем!", user.getEmail()));
+            throw new DuplicateUserEmailException(String.format("Электронная почта %s не принадлежит пользователю и она занята другим пользователем!", user.getEmail()));
         }
 
         String newEmail;
@@ -80,16 +66,13 @@ public class UserServiceImpl implements UserService {
             newName = oldUser.getName();
         }
 
-        User result = User.builder()
-                .id(oldUser.getId())
-                .name(newName)
-                .email(newEmail)
-                .build();
+        User result = new User(oldUser.getId(), newName, newEmail);
+        User newUser = userRepository.saveAndFlush(result);
 
-        User newUser = userRepository.updateUser(result).orElseThrow(() -> {
+        if (newUser.getId() == null) {
             log.info(String.format("Пользователь %s не обновлен", result));
             return null;
-        });
+        }
 
         log.info(String.format("Пользователь %s обновлен.", newUser));
         return newUser;
@@ -97,7 +80,14 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(Long userId) {
-        userRepository.deleteUser(userId);
+        userRepository.deleteById(userId);
         log.info(String.format("Пользователь %d удалён.", userId));
+    }
+
+    private User getUserIfExists(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> {
+            log.info(String.format("Пользователя №%d не существует!", userId));
+            throw new UserNotExistException(String.format("Пользователя №%d не существует!", userId));
+        });
     }
 }

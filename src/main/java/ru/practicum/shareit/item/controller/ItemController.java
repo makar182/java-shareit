@@ -1,11 +1,11 @@
 package ru.practicum.shareit.item.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.interfaces.OnAdd;
 import ru.practicum.shareit.interfaces.OnUpdate;
-import ru.practicum.shareit.item.dto.ItemDtoRequest;
-import ru.practicum.shareit.item.dto.ItemDtoResponse;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.service.ItemService;
 
@@ -15,36 +15,49 @@ import java.util.List;
 @RequestMapping("/items")
 public class ItemController {
     private final ItemService itemService;
+    private final ItemMapper itemMapper;
 
-    public ItemController(ItemService itemService) {
+    @Autowired
+    public ItemController(ItemService itemService, ItemMapper itemMapper) {
         this.itemService = itemService;
+        this.itemMapper = itemMapper;
     }
 
     @PostMapping
-    public ItemDtoResponse addItem(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                   @Validated(OnAdd.class) @RequestBody ItemDtoRequest itemDtoRequest) {
-        return ItemMapper.toDto(itemService.addItem(userId, ItemMapper.toEntity(itemDtoRequest)));
+    public ItemMainResponseDto addItem(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                       @Validated(OnAdd.class) @RequestBody ItemRequestDto itemRequestDto) {
+        return itemMapper.toItemMainResponseDto(itemService.addItem(userId, ItemMapper.toItemEntity(itemRequestDto)));
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDtoResponse updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                      @PathVariable("itemId") Long itemId,
-                                      @Validated(OnUpdate.class) @RequestBody ItemDtoRequest itemDtoRequest) {
-        return ItemMapper.toDto(itemService.updateItem(userId, itemId, ItemMapper.toEntity(itemDtoRequest)));
+    public ItemMainResponseDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                          @PathVariable("itemId") Long itemId,
+                                          @Validated(OnUpdate.class) @RequestBody ItemRequestDto itemRequestDto) {
+        return itemMapper.toItemMainResponseDto(itemService.updateItem(userId, itemId, ItemMapper.toItemEntity(itemRequestDto)));
     }
 
     @GetMapping("/{itemId}")
-    public ItemDtoResponse getItemById(@PathVariable("itemId") long itemId) {
-        return ItemMapper.toDto(itemService.getItemById(itemId));
+    public ItemGetResponseDto getItemById(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                          @PathVariable("itemId") long itemId) {
+        return itemService.getItemById(userId, itemId);
     }
 
     @GetMapping
-    public List<ItemDtoResponse> getItemsByUserId(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        return ItemMapper.toDtoList(itemService.getItemsByUserId(userId));
+    public List<ItemGetResponseDto> getItemsByUserId(@RequestHeader("X-Sharer-User-Id") Long userId) {
+        return itemService.getItemsByUserId(userId);
     }
 
     @GetMapping("/search")
-    public List<ItemDtoResponse> getItemsByDescription(@RequestParam("text") String itemDescription) {
-        return ItemMapper.toDtoList(itemService.getItemsByDescription(itemDescription));
+    public List<ItemGetResponseDto> getItemsByDescription(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                                          @RequestParam("text") String itemDescription) {
+        return itemService.getItemsByDescription(userId, itemDescription);
     }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentResponseDto addComment(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                         @PathVariable("itemId") Long itemId,
+                                         @Validated @RequestBody CommentRequestDto commentRequestDto) {
+        return ItemMapper.toCommentResponseDto(itemService.addComment(userId, itemId, ItemMapper.toCommentEntity(commentRequestDto)));
+    }
+
 }

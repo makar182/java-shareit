@@ -1,7 +1,8 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import ru.practicum.shareit.interfaces.OnAdd;
 
 import javax.validation.constraints.NotBlank;
@@ -9,10 +10,10 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Objects;
 
-@Data
+@Getter
+@Setter
 @Builder
-public class ItemDtoRequest {
-    private Long id;
+public class ItemRequestDto {
     @NotNull(message = "У вещи должно быть название!", groups = OnAdd.class)
     @NotBlank(message = "У вещи должно быть название!", groups = OnAdd.class)
     private String name;
@@ -26,7 +27,7 @@ public class ItemDtoRequest {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ItemDtoRequest that = (ItemDtoRequest) o;
+        ItemRequestDto that = (ItemRequestDto) o;
         return name.equals(that.name);
     }
 
