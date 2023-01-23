@@ -1,16 +1,20 @@
 package ru.practicum.shareit.request.model;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "requests")
+@NoArgsConstructor
 public class ItemRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,10 +24,12 @@ public class ItemRequest {
     @OneToOne
     @JoinColumn(name = "requester_id", referencedColumnName = "id")
     private User requester;
+    @OneToMany(mappedBy = "request", cascade = CascadeType.ALL)
+    private List<Item> items;
 
-    public ItemRequest(Long id, String description, User requester) {
-        this.id = id;
+    public ItemRequest(String description, User requester, List<Item> items) {
         this.description = description;
         this.requester = requester;
+        this.items = items;
     }
 }

@@ -22,6 +22,7 @@ public class ItemRequestDto {
     private String description;
     @NotNull(message = "У вещи должна быть указана доступность!", groups = OnAdd.class)
     private Boolean available;
+    private Long requestId;
 
     @Override
     public boolean equals(Object o) {

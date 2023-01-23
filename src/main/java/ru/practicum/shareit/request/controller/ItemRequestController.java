@@ -1,16 +1,13 @@
 package ru.practicum.shareit.request.controller;
 
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.booking.dto.BookingRequestDto;
-import ru.practicum.shareit.booking.dto.BookingResponseDto;
-import ru.practicum.shareit.booking.mapper.BookingMapper;
+import ru.practicum.shareit.interfaces.OnAdd;
 import ru.practicum.shareit.request.ItemRequestMapper;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemResponseDto;
-import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.service.ItemRequestService;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -24,8 +21,8 @@ public class ItemRequestController {
 
     @PostMapping
     public ItemResponseDto addItemRequest(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                          @Valid @RequestBody ItemRequestDto itemRequestDto) {
-        return ItemRequestMapper.toDto(itemRequestService.addItemRequest(itemRequestDto, userId));
+                                          @Validated(OnAdd.class)  @RequestBody ItemRequestDto itemRequestDto) {
+        return ItemRequestMapper.toDto(itemRequestService.addItemRequest(ItemRequestMapper.toEntity(itemRequestDto), userId));
     }
 
     @GetMapping("/{requestId}")
@@ -41,8 +38,8 @@ public class ItemRequestController {
 
     @GetMapping("/all")
     public List<ItemResponseDto> getItemRequestsByVisitor(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                          @RequestParam("from") int from,
-                                                          @RequestParam("size") int size) {
+                                                          @RequestParam(name = "from", required = false, defaultValue = "0") int from,
+                                                          @RequestParam(name = "size", required = false, defaultValue = "10") int size) {
         return ItemRequestMapper.toDtoList(itemRequestService.getItemRequestsByVisitor(userId, from, size));
     }
 }

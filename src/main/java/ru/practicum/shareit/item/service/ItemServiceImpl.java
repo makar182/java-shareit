@@ -1,6 +1,9 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.enums.BookingStatus;
 import ru.practicum.shareit.booking.model.Booking;
@@ -12,6 +15,8 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -25,14 +30,16 @@ public class ItemServiceImpl implements ItemService {
     private final UserRepository userRepository;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository itemRequestRepository;
     private final ItemMapper itemMapper;
 
-    public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository, BookingRepository bookingRepository, CommentRepository commentRepository) {
+    public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository, BookingRepository bookingRepository, CommentRepository commentRepository, ItemRequestRepository itemRequestRepository) {
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
         this.bookingRepository = bookingRepository;
         this.commentRepository = commentRepository;
-        itemMapper = new ItemMapper(this.bookingRepository, commentRepository);
+        this.itemRequestRepository = itemRequestRepository;
+        itemMapper = new ItemMapper(this.bookingRepository, commentRepository, this.itemRequestRepository);
     }
 
     @Override
@@ -79,7 +86,9 @@ public class ItemServiceImpl implements ItemService {
             newItemAvailableFlag = oldItem.getAvailable();
         }
 
-        Item itemToAdd = new Item(oldItem.getId(), newItemName, newItemDescription, newItemAvailableFlag, oldItem.getOwner(), oldItem.getComments());
+        ItemRequest newItemRequest = item.getRequest() != null ? item.getRequest() : oldItem.getRequest();
+
+        Item itemToAdd = new Item(oldItem.getId(), newItemName, newItemDescription, newItemAvailableFlag, oldItem.getOwner(), oldItem.getComments(), newItemRequest);
         Item newItem = itemRepository.saveAndFlush(itemToAdd);
         log.info(String.format("Предмет %s успешно обновлен", newItem));
         return newItem;
@@ -97,19 +106,29 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemGetResponseDto> getItemsByUserId(Long userId) {
-        List<ItemGetResponseDto> result = itemMapper.toItemGetResponseDtoList(itemRepository.findAllByOwnerId(userId), userId);
+    public List<ItemGetResponseDto> getItemsByUserId(Long userId, Integer from, Integer size) {
+        checkFromSizeArguments(from, size);
+
+        getUserIfExists(userId);
+
+        int page = from == 0 ? 0 : (from / size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("created").ascending());
+        List<ItemGetResponseDto> result = itemMapper.toItemGetResponseDtoList(itemRepository.findAllByOwnerId(userId, pageable), userId);
         log.info(String.format("Выгружен список предметов по пользователю %d", userId));
         return result;
     }
 
     @Override
-    public List<ItemGetResponseDto> getItemsByDescription(Long userId, String itemDescription) {
+    public List<ItemGetResponseDto> getItemsByDescription(Long userId, String itemDescription, Integer from, Integer size) {
+        checkFromSizeArguments(from, size);
+
         if (itemDescription.isBlank()) {
             log.info("Пустая строка поиска /search");
             return List.of();
         } else {
-            List<Item> items = itemRepository.findAllByDescriptionContainingIgnoreCaseAndAvailable(itemDescription.trim(), true);
+            int page = from == 0 ? 0 : (from / size);
+            Pageable pageable = PageRequest.of(page, size, Sort.by("created").ascending());
+            List<Item> items = itemRepository.findAllByDescriptionContainingIgnoreCaseAndAvailable(itemDescription.trim(), true, pageable);
             List<ItemGetResponseDto> result = itemMapper.toItemGetResponseDtoList(items, userId);
             log.info(String.format("Выгружен список предметов по описанию '%s'", itemDescription));
             return result;
@@ -139,5 +158,12 @@ public class ItemServiceImpl implements ItemService {
             log.info(String.format("Пользователя №%d не существует!", userId));
             throw new UserNotExistException(String.format("Пользователя №%d не существует!", userId));
         });
+    }
+
+    private void checkFromSizeArguments(int from, int size) {
+        if(from < 0 || size <= 0) {
+            log.info("Отрицательные значения параметров from и size недопустимы!");
+            throw new IllegalArgumentException("Отрицательные значения параметров from и size недопустимы!");
+        }
     }
 }

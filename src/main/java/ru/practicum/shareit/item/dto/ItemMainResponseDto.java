@@ -22,6 +22,7 @@ public class ItemMainResponseDto {
     private String description;
     @NotNull
     private Boolean available;
+    private Long requestId;
 
     @Override
     public boolean equals(Object o) {

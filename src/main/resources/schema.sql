@@ -34,6 +34,7 @@ create table if not exists items
     is_available boolean                                 not null,
     owner_id     bigint                                  not null,
     request_id   bigint,
+    created      timestamp without time zone             not null,
     constraint pk_item
         primary key (id),
     constraint fk_item_user_id

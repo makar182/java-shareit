@@ -1,10 +1,5 @@
 package ru.practicum.shareit.request;
 
-import ru.practicum.shareit.booking.dto.BookingRequestDto;
-import ru.practicum.shareit.booking.dto.BookingResponseDto;
-import ru.practicum.shareit.booking.enums.BookingStatus;
-import ru.practicum.shareit.booking.mapper.BookingMapper;
-import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemResponseDto;
@@ -15,18 +10,30 @@ import java.util.List;
 
 public class ItemRequestMapper {
     public static ItemRequest toEntity(ItemRequestDto itemRequestDto) {
-        return new ItemRequest(null, itemRequestDto.getDescription(), null);
+        return new ItemRequest(itemRequestDto.getDescription(), null, null);
     }
 
     public static ItemResponseDto toDto(ItemRequest itemRequest) {
-        return null;
+        List<ItemResponseDto.NestedItem> nestedItems = new ArrayList<>();
+        if (itemRequest.getItems() != null) {
+            for (Item item : itemRequest.getItems()) {
+                nestedItems.add(new ItemResponseDto.NestedItem(item));
+            }
+        }
+
+        return ItemResponseDto.builder()
+                .id(itemRequest.getId())
+                .description(itemRequest.getDescription())
+                .created(itemRequest.getCreated())
+                .items(nestedItems)
+                .build();
     }
 
     public static List<ItemResponseDto> toDtoList(List<ItemRequest> itemRequests) {
-//        List<BookingResponseDto> result = new ArrayList<>();
-//        for (Booking booking : bookings) {
-//            result.add(BookingMapper.toDto(booking));
-//        }
-        return null;
+        List<ItemResponseDto> result = new ArrayList<>();
+        for (ItemRequest itemRequest : itemRequests) {
+            result.add(ItemRequestMapper.toDto(itemRequest));
+        }
+        return result;
     }
 }
