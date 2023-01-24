@@ -73,7 +73,7 @@ public class BookingServiceImpl implements BookingService {
         } else if (stateEnum.equals(BookingState.REJECTED)) {
             return bookingRepository.findAllByBooker_IdAndStatus(userId, BookingStatus.REJECTED, pageable);
         } else {
-            return null;
+            throw new IllegalArgumentException(String.format("Статуса %s не существует", state));
         }
     }
 

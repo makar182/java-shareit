@@ -25,6 +25,6 @@ public class UserRequestDto {
         this.email = email;
     }
 
-    public void setName(Object o) {
+    public UserRequestDto() {
     }
 }
