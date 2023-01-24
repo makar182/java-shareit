@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -33,13 +34,15 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRequestRepository itemRequestRepository;
     private final ItemMapper itemMapper;
 
-    public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository, BookingRepository bookingRepository, CommentRepository commentRepository, ItemRequestRepository itemRequestRepository) {
+    @Autowired
+    public ItemServiceImpl(ItemRepository itemRepository, UserRepository userRepository, BookingRepository bookingRepository
+            , CommentRepository commentRepository, ItemRequestRepository itemRequestRepository) {
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
         this.bookingRepository = bookingRepository;
         this.commentRepository = commentRepository;
         this.itemRequestRepository = itemRequestRepository;
-        itemMapper = new ItemMapper(this.bookingRepository, commentRepository, this.itemRequestRepository);
+        itemMapper = new ItemMapper(this.bookingRepository, this.commentRepository, this.itemRequestRepository);
     }
 
     @Override
@@ -161,7 +164,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     private void checkFromSizeArguments(int from, int size) {
-        if(from < 0 || size <= 0) {
+        if (from < 0 || size <= 0) {
             log.info("Отрицательные значения параметров from и size недопустимы!");
             throw new IllegalArgumentException("Отрицательные значения параметров from и size недопустимы!");
         }

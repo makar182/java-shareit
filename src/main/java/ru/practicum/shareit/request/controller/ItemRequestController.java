@@ -3,7 +3,7 @@ package ru.practicum.shareit.request.controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.interfaces.OnAdd;
-import ru.practicum.shareit.request.ItemRequestMapper;
+import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemResponseDto;
 import ru.practicum.shareit.request.service.ItemRequestService;

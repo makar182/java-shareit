@@ -34,7 +34,7 @@ public class ItemMapper {
         this.itemRequestRepository = itemRequestRepository;
     }
 
-    public ItemMainResponseDto toItemMainResponseDto(Item item) {
+    public static ItemMainResponseDto toItemMainResponseDto(Item item) {
         return ItemMainResponseDto.builder()
                 .id(item.getId())
                 .name(item.getName())
