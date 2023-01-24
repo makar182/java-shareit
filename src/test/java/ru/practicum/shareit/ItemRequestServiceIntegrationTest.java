@@ -75,7 +75,6 @@ public class ItemRequestServiceIntegrationTest {
         request.setDescription("desc");
 
         ItemRequest requestDtoCreated = itemRequestService.addItemRequest(request, user.getId());
-//        Optional<ItemRequest> requestDtoOptional = Optional.ofNullable(requestDtoCreated);
 
         Collection<ItemRequest> requestDto = itemRequestService.getItemRequestsByOwner(user.getId());
         assertEquals(requestDto.size(), 1);
