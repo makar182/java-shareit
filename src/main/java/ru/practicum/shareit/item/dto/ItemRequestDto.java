@@ -1,8 +1,6 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import ru.practicum.shareit.interfaces.OnAdd;
 
 import javax.validation.constraints.NotBlank;
@@ -13,6 +11,8 @@ import java.util.Objects;
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ItemRequestDto {
     @NotNull(message = "У вещи должно быть название!", groups = OnAdd.class)
     @NotBlank(message = "У вещи должно быть название!", groups = OnAdd.class)

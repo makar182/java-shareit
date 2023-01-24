@@ -8,14 +8,13 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingServiceImpl;
-import ru.practicum.shareit.config.PersistenceConfig;
 
 import javax.transaction.Transactional;
 
 @Transactional
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @TestPropertySource(properties = {"db.name=test"})
-@SpringJUnitConfig({PersistenceConfig.class, BookingServiceImpl.class})
+@SpringJUnitConfig(BookingServiceImpl.class)
 
 public class BookingServiceImplTest {
     private final BookingServiceImpl bookingService;

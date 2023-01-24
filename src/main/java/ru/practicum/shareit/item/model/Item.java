@@ -29,7 +29,7 @@ public class Item {
     @ManyToOne
     @JoinColumn(name = "owner_id")
     private User owner;
-    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "item")
     private List<Comment> comments;
     @ManyToOne
     @JoinColumn(name = "request_id")

@@ -21,6 +21,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.user.model.User;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -100,10 +101,13 @@ public class ItemControllerTest {
 
     @Test
     public void createCommentTest() throws Exception {
+        User user = new User(1L, "Олег", "test@yandex.ru");
+
         Comment comment = new Comment();
         comment.setCreated(LocalDateTime.now());
         comment.setId(1L);
         comment.setText("text");
+        comment.setAuthor(user);
 
         CommentResponseDto commentResponseDto = CommentResponseDto.builder()
                 .id(comment.getId())
@@ -120,7 +124,7 @@ public class ItemControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(comment.getId()), Integer.class))
+                .andExpect(jsonPath("$.id", is(comment.getId()), Long.class))
                 .andExpect(jsonPath("$.created", is(notNullValue())))
                 .andExpect(jsonPath("$.text", is(comment.getText())));
     }

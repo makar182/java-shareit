@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -13,27 +14,28 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/items")
+@RequiredArgsConstructor
 public class ItemController {
     private final ItemService itemService;
     private final ItemMapper itemMapper;
 
-    @Autowired
-    public ItemController(ItemService itemService, ItemMapper itemMapper) {
-        this.itemService = itemService;
-        this.itemMapper = itemMapper;
-    }
+//    @Autowired
+//    public ItemController(ItemService itemService, ItemMapper itemMapper) {
+//        this.itemService = itemService;
+//        this.itemMapper = itemMapper;
+//    }
 
     @PostMapping
     public ItemMainResponseDto addItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                                        @Validated(OnAdd.class) @RequestBody ItemRequestDto itemRequestDto) {
-        return itemMapper.toItemMainResponseDto(itemService.addItem(userId, itemMapper.toItemEntity(itemRequestDto)));
+        return ItemMapper.toItemMainResponseDto(itemService.addItem(userId, itemMapper.toItemEntity(itemRequestDto)));
     }
 
     @PatchMapping("/{itemId}")
     public ItemMainResponseDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                                           @PathVariable("itemId") Long itemId,
                                           @Validated(OnUpdate.class) @RequestBody ItemRequestDto itemRequestDto) {
-        return itemMapper.toItemMainResponseDto(itemService.updateItem(userId, itemId, itemMapper.toItemEntity(itemRequestDto)));
+        return ItemMapper.toItemMainResponseDto(itemService.updateItem(userId, itemId, itemMapper.toItemEntity(itemRequestDto)));
     }
 
     @GetMapping("/{itemId}")

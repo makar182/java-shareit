@@ -24,7 +24,7 @@ public class ItemRequest {
     @OneToOne
     @JoinColumn(name = "requester_id", referencedColumnName = "id")
     private User requester;
-    @OneToMany(mappedBy = "request", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "request")
     private List<Item> items;
 
     public ItemRequest(String description, User requester, List<Item> items) {
