@@ -20,7 +20,6 @@ import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
-import ru.practicum.shareit.request.dto.ItemResponseDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 
 import java.nio.charset.StandardCharsets;

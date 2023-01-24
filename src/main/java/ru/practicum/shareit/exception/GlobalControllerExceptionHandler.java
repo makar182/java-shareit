@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.practicum.shareit.booking.dto.ErrorDto;
-import ru.practicum.shareit.error.ErrorResponse;
 
 @ControllerAdvice
 public class GlobalControllerExceptionHandler {

@@ -40,7 +40,7 @@ public class ItemMapper {
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
-                .requestId(item.getRequest() == null? null : item.getRequest().getId())
+                .requestId(item.getRequest() == null ? null : item.getRequest().getId())
                 .build();
     }
 
@@ -96,7 +96,7 @@ public class ItemMapper {
 
     public Item toItemEntity(ItemRequestDto itemRequestDto) {
         ItemRequest itemRequest = null;
-        if(itemRequestDto.getRequestId() != null) {
+        if (itemRequestDto.getRequestId() != null) {
             itemRequest = itemRequestRepository.findById(itemRequestDto.getRequestId()).orElseThrow(() -> {
                 log.info(String.format("Запроса №%d не существует!", itemRequestDto.getRequestId()));
                 throw new ItemRequestNotExistExceptionException(String.format("Запроса №%d не существует!", itemRequestDto.getRequestId()));
