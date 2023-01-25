@@ -1,8 +1,6 @@
 package ru.practicum.shareit.item.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -12,6 +10,8 @@ import java.util.Objects;
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ItemMainResponseDto {
     private Long id;
     @NotNull(message = "У вещи должно быть название!")
@@ -22,6 +22,7 @@ public class ItemMainResponseDto {
     private String description;
     @NotNull
     private Boolean available;
+    private Long requestId;
 
     @Override
     public boolean equals(Object o) {

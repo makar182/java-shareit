@@ -115,4 +115,11 @@ public class ErrorHandler {
         log.error("Неизвестная ошибка: " + e.getMessage());
         return new ErrorResponse("Неизвестная ошибка:", e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleItemRequestNotExistExceptionException(final ItemRequestNotExistExceptionException e) {
+        log.error("Ошибка: " + e.getMessage());
+        return new ErrorResponse("Ошибка", e.getMessage());
+    }
 }

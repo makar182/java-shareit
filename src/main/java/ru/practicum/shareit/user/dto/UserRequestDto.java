@@ -15,8 +15,16 @@ import javax.validation.constraints.NotNull;
 @Builder
 public class UserRequestDto {
     @NotBlank(message = "У пользователя должно быть указано имя!", groups = OnAdd.class)
-    private final String name;
+    private String name;
     @NotNull(message = "У пользователя должна быть указана электронная почта при регистрации!", groups = OnAdd.class)
     @Email(message = "Неверная маска электронной почты!", groups = {OnAdd.class, OnUpdate.class})
-    private final String email;
+    private String email;
+
+    public UserRequestDto(String name, String email) {
+        this.name = name;
+        this.email = email;
+    }
+
+    public UserRequestDto() {
+    }
 }

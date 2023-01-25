@@ -1,14 +1,18 @@
 package ru.practicum.shareit.item.mapper;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.enums.BookingStatus;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.exception.ItemRequestNotExistExceptionException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,23 +20,28 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
+@RequiredArgsConstructor
 public class ItemMapper {
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
+    private final ItemRequestRepository itemRequestRepository;
 
-    @Autowired
-    public ItemMapper(BookingRepository bookingRepository, CommentRepository commentRepository) {
-        this.bookingRepository = bookingRepository;
-        this.commentRepository = commentRepository;
-    }
+//    @Autowired
+//    public ItemMapper(BookingRepository bookingRepository, CommentRepository commentRepository, ItemRequestRepository itemRequestRepository) {
+//        this.bookingRepository = bookingRepository;
+//        this.commentRepository = commentRepository;
+//        this.itemRequestRepository = itemRequestRepository;
+//    }
 
-    public ItemMainResponseDto toItemMainResponseDto(Item item) {
+    public static ItemMainResponseDto toItemMainResponseDto(Item item) {
         return ItemMainResponseDto.builder()
                 .id(item.getId())
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.getAvailable())
+                .requestId(item.getRequest() == null ? null : item.getRequest().getId())
                 .build();
     }
 
@@ -86,8 +95,15 @@ public class ItemMapper {
                 }).collect(Collectors.toList());
     }
 
-    public static Item toItemEntity(ItemRequestDto itemRequestDto) {
-        return new Item(null, itemRequestDto.getName(), itemRequestDto.getDescription(), itemRequestDto.getAvailable(), null, null);
+    public Item toItemEntity(ItemRequestDto itemRequestDto) {
+        ItemRequest itemRequest = null;
+        if (itemRequestDto.getRequestId() != null) {
+            itemRequest = itemRequestRepository.findById(itemRequestDto.getRequestId()).orElseThrow(() -> {
+                log.info(String.format("Запроса №%d не существует!", itemRequestDto.getRequestId()));
+                throw new ItemRequestNotExistExceptionException(String.format("Запроса №%d не существует!", itemRequestDto.getRequestId()));
+            });
+        }
+        return new Item(null, itemRequestDto.getName(), itemRequestDto.getDescription(), itemRequestDto.getAvailable(), null, null, itemRequest);
     }
 
     public static CommentResponseDto toCommentResponseDto(Comment comment) {
