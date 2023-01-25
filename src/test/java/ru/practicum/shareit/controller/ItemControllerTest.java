@@ -43,11 +43,11 @@ public class ItemControllerTest {
     @Mock
     private ItemService itemService;
     @Mock
-    BookingRepository bookingRepository;
+    private BookingRepository bookingRepository;
     @Mock
-    CommentRepository commentRepository;
+    private CommentRepository commentRepository;
     @Mock
-    ItemRequestRepository itemRequestRepository;
+    private ItemRequestRepository itemRequestRepository;
     @InjectMocks
     private ItemController itemController;
     private final ObjectMapper mapper = new ObjectMapper();
@@ -91,23 +91,6 @@ public class ItemControllerTest {
                 .build();
     }
 
-//    @Test
-//    public void createItemTest() throws Exception {
-//        when(itemService.addItem(any(), any())).thenReturn(item);
-//
-//        mvc.perform(post("/items")
-//                        .content(mapper.writeValueAsString(itemRequestDto))
-//                        .header("X-Sharer-User-Id", 1)
-//                        .characterEncoding(StandardCharsets.UTF_8)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.name", is(itemMainResponseDto.getName())))
-//                .andExpect(jsonPath("$.description", is(itemMainResponseDto.getDescription())))
-//                .andExpect(jsonPath("$.available", is(itemMainResponseDto.getAvailable())))
-//                .andExpect(jsonPath("$.requestId", is(itemMainResponseDto.getRequestId())));
-//    }
-
     @Test
     public void createCommentTest() throws Exception {
         User user = new User(1L, "Олег", "test@yandex.ru");
@@ -137,24 +120,6 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$.created", is(notNullValue())))
                 .andExpect(jsonPath("$.text", is(comment.getText())));
     }
-
-//    @Test
-//    public void updateItemTest() throws Exception {
-//        when(itemService.updateItem(any(), any(), any())).thenReturn(item);
-//
-//        mvc.perform(patch("/items/1")
-//                        .content(mapper.writeValueAsString(itemRequestDto))
-//                        .header("X-Sharer-User-Id", 1)
-//                        .characterEncoding(StandardCharsets.UTF_8)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.id", is(itemMainResponseDto.getId()), Integer.class))
-//                .andExpect(jsonPath("$.name", is(itemMainResponseDto.getName())))
-//                .andExpect(jsonPath("$.description", is(itemMainResponseDto.getDescription())))
-//                .andExpect(jsonPath("$.available", is(itemMainResponseDto.getAvailable())))
-//                .andExpect(jsonPath("$.requestId", is(itemMainResponseDto.getRequestId())));
-//    }
 
     @Test
     public void getItemByIdTest() throws Exception {
@@ -188,23 +153,6 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$[*].available", containsInAnyOrder(itemGetResponseDto.getAvailable())));
     }
 
-//    @Test
-//    public void getAllItemsOwnerWithPagination() throws Exception {
-//        when(itemService.getAllItemsWithPagination(any(), any(), any())).thenReturn(List.of(itemDto));
-//
-//        mvc.perform(get("/items?from=0&size=20")
-//                        .header("X-Sharer-User-Id", 1)
-//                        .characterEncoding(StandardCharsets.UTF_8)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$[*].id", containsInAnyOrder(itemDto.getId())))
-//                .andExpect(jsonPath("$[*].name", containsInAnyOrder(itemDto.getName())))
-//                .andExpect(jsonPath("$[*].description", containsInAnyOrder(itemDto.getDescription())))
-//                .andExpect(jsonPath("$[*].available", containsInAnyOrder(itemDto.getAvailable())))
-//                .andExpect(jsonPath("$[*].requestId", containsInAnyOrder(itemDto.getRequestId())));
-//    }
-
     @Test
     public void searchItemByTextTest() throws Exception {
         when(itemService.getItemsByDescription(any(), any(), any(), any())).thenReturn(List.of(itemGetResponseDto));
@@ -220,21 +168,4 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$[*].description", containsInAnyOrder(itemGetResponseDto.getDescription())))
                 .andExpect(jsonPath("$[*].available", containsInAnyOrder(itemGetResponseDto.getAvailable())));
     }
-
-//    @Test
-//    public void searchItemByTextTestWithPagination() throws Exception {
-//        when(itemService.searchItemByTextWithPagination(any(), any(), any(), any())).thenReturn(List.of(item));
-//
-//        mvc.perform(get("/items/search?text=text&from=0&size=20")
-//                        .header("X-Sharer-User-Id", 1)
-//                        .characterEncoding(StandardCharsets.UTF_8)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$[*].id", containsInAnyOrder(itemDto.getId())))
-//                .andExpect(jsonPath("$[*].name", containsInAnyOrder(itemDto.getName())))
-//                .andExpect(jsonPath("$[*].description", containsInAnyOrder(itemDto.getDescription())))
-//                .andExpect(jsonPath("$[*].available", containsInAnyOrder(itemDto.getAvailable())))
-//                .andExpect(jsonPath("$[*].requestId", containsInAnyOrder(itemDto.getRequestId())));
-//    }
 }

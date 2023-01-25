@@ -15,9 +15,9 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class CommentMapperTest {
-    public Comment comment;
-    public User user;
-    public Item item;
+    private Comment comment;
+    private User user;
+    private Item item;
 
     @BeforeEach
     void setValues() {

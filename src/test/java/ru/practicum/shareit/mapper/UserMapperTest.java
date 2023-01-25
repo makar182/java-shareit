@@ -9,7 +9,7 @@ import ru.practicum.shareit.user.model.User;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UserMapperTest {
-    UserRequestDto userDto;
+    private UserRequestDto userDto;
 
     @BeforeEach
     void setValue() {

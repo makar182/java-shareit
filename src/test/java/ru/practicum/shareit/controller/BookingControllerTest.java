@@ -38,9 +38,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(MockitoExtension.class)
 public class BookingControllerTest {
     @Mock
-    BookingService bookingService;
+    private BookingService bookingService;
     @InjectMocks
-    BookingController bookingController;
+    private BookingController bookingController;
     private final ObjectMapper mapper = new ObjectMapper();
     private MockMvc mvc;
     private Booking booking;
@@ -133,24 +133,6 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$[*].status", containsInAnyOrder(booking.getStatus().toString())));
     }
 
-//    @Test
-//    public void getAllBookingsForUserWithPagination() throws Exception {
-//        when(bookingService.getAllBookingsForUserWithPagination(any(), any(), any(), any()))
-//                .thenReturn(List.of(bookingDto));
-//
-//        mvc.perform(get("/bookings?from=0&size=10")
-//                        .content(mapper.writeValueAsString(booking))
-//                        .header("X-Sharer-User-Id", 1)
-//                        .characterEncoding(StandardCharsets.UTF_8)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$[*].id", containsInAnyOrder(booking.getId())))
-//                .andExpect(jsonPath("$[*].start", containsInAnyOrder(notNullValue())))
-//                .andExpect(jsonPath("$[*].end", containsInAnyOrder(notNullValue())))
-//                .andExpect(jsonPath("$[*].status", containsInAnyOrder(booking.getStatus().toString())));
-//    }
-
     @Test
     public void getAllBookingForOwnerTest() throws Exception {
         when(bookingService.getBookingsByOwner(any(), any(), anyInt(), anyInt())).thenReturn(List.of(booking));
@@ -168,29 +150,6 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$[*].end", containsInAnyOrder(notNullValue())))
                 .andExpect(jsonPath("$[*].status", containsInAnyOrder(booking.getStatus().toString())));
     }
-
-//    @Test
-//    public void getAllBookingForOwnerTestWithPagination() throws Exception {
-//        when(bookingService.getAllBookingForOwnerWithPagination(any(), any(), any(), any()))
-//                .thenReturn(List.of(bookingDto));
-//
-//        mvc.perform(get("/bookings/owner?from=0&size=10")
-//                        .content(mapper.writeValueAsString(booking))
-//                        .header("X-Sharer-User-Id", 1)
-//                        .characterEncoding(StandardCharsets.UTF_8)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$[*].id", containsInAnyOrder(booking.getId())))
-//                .andExpect(jsonPath("$[*].start", containsInAnyOrder(notNullValue())))
-//                .andExpect(jsonPath("$[*].end", containsInAnyOrder(notNullValue())))
-//                .andExpect(jsonPath("$[*].status", containsInAnyOrder(booking.getStatus().toString())));
-//    }
-
-//    @Test
-//    public void getErrorForUnknownState() {
-//
-//    }
 
     @Test
     public void getBetRequestForUnsupportedStatus() throws Exception {

@@ -16,9 +16,9 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class BookingMapperTest {
-    public Booking booking;
-    public Item item;
-    public User user;
+    private Booking booking;
+    private Item item;
+    private User user;
 
     @BeforeEach
     void setValues() {

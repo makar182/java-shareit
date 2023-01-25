@@ -3,7 +3,6 @@ package ru.practicum.shareit;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -74,7 +73,7 @@ public class ItemRequestServiceIntegrationTest {
         request.setCreated(LocalDateTime.now());
         request.setDescription("desc");
 
-        ItemRequest requestDtoCreated = itemRequestService.addItemRequest(request, user.getId());
+        itemRequestService.addItemRequest(request, user.getId());
 
         Collection<ItemRequest> requestDto = itemRequestService.getItemRequestsByOwner(user.getId());
         assertEquals(requestDto.size(), 1);
@@ -99,8 +98,6 @@ public class ItemRequestServiceIntegrationTest {
         assertEquals(requestDtoWithPagination.size(), 1, "Неверное значение списка пагинации");
         assertEquals(new ArrayList<>(requestDtoWithPagination).get(0).getId(), requestDtoCreated.getId(),
                 "Неверное значение id");
-//        assertEquals(new ArrayList<>(requestDtoWithPagination).get(0).getItems(),
-//                requestDtoCreated.getItems(), "Неверно присвоен список вещей");
         assertEquals(new ArrayList<>(requestDtoWithPagination).get(0).getDescription(),
                 requestDtoCreated.getDescription(), "Неверно присвоено описание");
     }
@@ -121,29 +118,9 @@ public class ItemRequestServiceIntegrationTest {
 
         assertEquals(resultRequestDto.getId(), requestDtoCreated.getId(),
                 "Неверное значение id");
-//        assertEquals(resultRequestDto.getItems(), requestDtoCreated.getItems(),
-//                "Неверно присвоен список вещей");
         assertEquals(resultRequestDto.getDescription(),
                 requestDtoCreated.getDescription(), "Неверно присвоено описание");
     }
-
-//    @Test
-//    public void get404NotFoundErrorForRequest() {
-//        RequestError er = Assertions.assertThrows(
-//                RequestError.class,
-//                getErrorForNotFoundRequest()
-//        );
-//        assertEquals(HttpStatus.NOT_FOUND, er.getStatus());
-//    }
-
-//    @Test
-//    public void get400NotFoundErrorForIncorrectPaginationLimit() {
-//        RequestError er = Assertions.assertThrows(
-//                RequestError.class,
-//                getErrorForIncorrectPaginationLimit()
-//        );
-//        assertEquals(HttpStatus.BAD_REQUEST, er.getStatus());
-//    }
 
     @Test
     public void getItemsWithPaginationTest() {
@@ -166,16 +143,6 @@ public class ItemRequestServiceIntegrationTest {
         assertEquals(requestDtoWithPagination.size(), 1, "Неверное значение списка пагинации");
     }
 
-    private Executable getErrorForNotFoundRequest() {
-        User user = userService.addUser(new User(1L, "Олег", "test@yandex.ru"));
-        return () -> itemRequestService.getItemRequestsByOwner(user.getId());
-    }
-
-//    private Executable getErrorForIncorrectPaginationLimit() {
-//        User user = userService.addUser(new User(1L, "Олег", "test@yandex.ru"));
-//        return () -> itemRequestService.getItemRequestsByOwner(user.getId());
-//    }
-
     private Item createItemDto(User owner) {
         return Item.builder()
                 .id(1L)
@@ -188,12 +155,4 @@ public class ItemRequestServiceIntegrationTest {
                 .request(null)
                 .build();
     }
-
-//    private UserDto createUserDto(String name, String email) {
-//        UserDto userDto = new UserDto();
-//        userDto.setId(1);
-//        userDto.setName(name);
-//        userDto.setEmail(email);
-//        return userDto;
-//    }
 }

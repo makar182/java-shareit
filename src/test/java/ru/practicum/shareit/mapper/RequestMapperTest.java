@@ -16,9 +16,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class RequestMapperTest {
 
-    public Item item;
-    public User user;
-    public ItemRequest request;
+    private Item item;
+    private User user;
+    private ItemRequest request;
 
     @BeforeEach
     void setValues() {

@@ -2,7 +2,6 @@ package ru.practicum.shareit;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -32,11 +31,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ItemServiceIntegrationTest {
 
     @Autowired
-    ItemService itemService;
+    private ItemService itemService;
     @Autowired
-    UserService userService;
+    private UserService userService;
     @Autowired
-    BookingRepository bookingRepository;
+    private BookingRepository bookingRepository;
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -65,110 +64,14 @@ class ItemServiceIntegrationTest {
                 );
     }
 
-//    @Test
-//    public void testUpdateItems() {
-//        User user = userService.addUser(createUserDto());
-//        Item itemDto = createItemDto(user);
-//        Item oldItem = itemService.addItem(user.getId(), itemDto);
-//        itemDto.setName("newName");
-//
-//        Optional<Item> itemOptional = Optional.ofNullable(itemService.updateItem(oldItem.getId(),
-//                user.getId(), itemDto));
-//
-//        assertThat(itemOptional)
-//                .isPresent()
-//                .hasValueSatisfying(item ->
-//                        assertThat(item).hasFieldOrPropertyWithValue("id", oldItem.getId())
-//                                .hasFieldOrPropertyWithValue("description", itemDto.getDescription())
-//                                .hasFieldOrPropertyWithValue("name", itemDto.getName())
-//                                .hasFieldOrPropertyWithValue("available", itemDto.getAvailable())
-//                                .hasFieldOrPropertyWithValue("owner", itemDto.getOwner())
-//                );
-//    }
-
-//    @Test
-//    public void testUpdateItemsStatus() {
-//        User user = userService.addUser(createUserDto());
-//        Item itemDto = createItemDto(user);
-//        Item oldItem = itemService.addItem(user.getId(), itemDto);
-//        itemDto.setName(null);
-//        itemDto.setDescription(null);
-//        itemDto.setAvailable(false);
-//        Optional<Item> itemOptional = Optional.ofNullable(itemService.updateItem(oldItem.getId(),
-//                user.getId(), itemDto));
-//
-//        assertThat(itemOptional)
-//                .isPresent()
-//                .hasValueSatisfying(item ->
-//                        assertThat(item).hasFieldOrPropertyWithValue("id", oldItem.getId())
-//                                .hasFieldOrPropertyWithValue("description", oldItem.getDescription())
-//                                .hasFieldOrPropertyWithValue("name", oldItem.getName())
-//                                .hasFieldOrPropertyWithValue("available", itemDto.getAvailable())
-//                                .hasFieldOrPropertyWithValue("owner", itemDto.getOwner())
-//                );
-//    }
-
-//    @Test
-//    public void testUpdateItemsName() {
-//        User user = userService.addUser(createUserDto());
-//        Item itemDto = createItemDto(user);
-//        Item oldItem = itemService.addItem(user.getId(), itemDto);
-//        itemDto.setName("new name");
-//        itemDto.setDescription(null);
-//        itemDto.setAvailable(null);
-//        Optional<Item> itemOptional = Optional.ofNullable(itemService.updateItem(oldItem.getId(),
-//                user.getId(), itemDto));
-//
-//        assertThat(itemOptional)
-//                .isPresent()
-//                .hasValueSatisfying(item ->
-//                        assertThat(item).hasFieldOrPropertyWithValue("id", oldItem.getId())
-//                                .hasFieldOrPropertyWithValue("description", oldItem.getDescription())
-//                                .hasFieldOrPropertyWithValue("name", itemDto.getName())
-//                                .hasFieldOrPropertyWithValue("available", oldItem.getAvailable())
-//                                .hasFieldOrPropertyWithValue("owner", itemDto.getOwner())
-//                );
-//    }
-
-//    @Test
-//    public void testUpdateItemsDescription() {
-//        User user = userService.addUser(createUserDto());
-//        Item itemDto = createItemDto(user);
-//        Item oldItem = itemService.addItem(user.getId(), itemDto);
-//        itemDto.setName(null);
-//        itemDto.setDescription("new des");
-//        itemDto.setAvailable(null);
-//        Optional<Item> itemOptional = Optional.ofNullable(itemService.updateItem(oldItem.getId(),
-//                user.getId(), itemDto));
-//
-//        assertThat(itemOptional)
-//                .isPresent()
-//                .hasValueSatisfying(item ->
-//                        assertThat(item).hasFieldOrPropertyWithValue("id", oldItem.getId())
-//                                .hasFieldOrPropertyWithValue("description", itemDto.getDescription())
-//                                .hasFieldOrPropertyWithValue("name", oldItem.getName())
-//                                .hasFieldOrPropertyWithValue("available", oldItem.getAvailable())
-//                                .hasFieldOrPropertyWithValue("owner", itemDto.getOwner())
-//                );
-//    }
-
     @Test
     public void getAllItemsOwnerTest() {
         User user = userService.addUser(createUserDto());
         Item itemDto = createItemDto(user);
-        Item oldItem = itemService.addItem(user.getId(), itemDto);
+        itemService.addItem(user.getId(), itemDto);
         Collection<ItemGetResponseDto> items = itemService.getItemsByUserId(user.getId(), 0, 100);
         assertEquals(items.size(), 1, "Неверный размер листа с вещами");
     }
-
-//    @Test
-//    public void getAllItemsWithPaginationTest() {
-//        User user = userService.addUser(createUserDto());
-//        Item itemDto = createItemDto(user);
-//        itemService.addItem(user.getId(), itemDto);
-//        Collection<ItemDto> items = itemService.getAllItemsWithPagination(user.getId(), 0, 1);
-//        assertEquals(items.size(), 1, "Неверный размер листа с вещами");
-//    }
 
     @Test
     public void searchByTextTest() {
@@ -179,16 +82,6 @@ class ItemServiceIntegrationTest {
         Collection<ItemGetResponseDto> items = itemService.getItemsByDescription(user.getId(), "des", 0, 100);
         assertEquals(items.size(), 1, "Неверный поиск по слову");
     }
-
-//    @Test
-//    public void searchItemByTextWithPaginationTest() {
-//        User user = userService.addUser(createUserDto());
-//        Item itemDto = createItemDto(user);
-//        itemService.addItem(user.getId(), itemDto);
-//
-//        Collection<Item> items = itemService.searchItemByTextWithPagination(user.getId(), 0, 1, "nam");
-//        assertEquals(items.size(), 1, "Неверный поиск по слову");
-//    }
 
     @Test
     public void createComment() {
@@ -210,142 +103,6 @@ class ItemServiceIntegrationTest {
                                 .hasFieldOrPropertyWithValue("text", "супер-класс")
                                 .hasFieldOrPropertyWithValue("author", user)
                 );
-    }
-
-//    @Test
-//    public void getRequestErrorCreateItemNotUser() {
-//        RequestError er = Assertions.assertThrows(
-//                RequestError.class,
-//                generateExecutableForNotFoundUser()
-//        );
-//        assertEquals(HttpStatus.NOT_FOUND, er.getStatus());
-//    }
-//
-//    @Test
-//    public void getRequestErrorGetNotFoundItem() {
-//        RequestError er = Assertions.assertThrows(
-//                RequestError.class,
-//                generateExecutableForNotFoundItem()
-//        );
-//        assertEquals(HttpStatus.NOT_FOUND, er.getStatus());
-//    }
-
-//    @Test
-//    public void getRequestErrorCreateEmptyComment() {
-//        RequestError er = Assertions.assertThrows(
-//                RequestError.class,
-//                generateExecutableForCreateEmptyComment()
-//        );
-//        assertEquals(HttpStatus.BAD_REQUEST, er.getStatus());
-//    }
-//
-//    @Test
-//    public void getRequestErrorForCreateCommentNotFoundUser() {
-//        RequestError er = Assertions.assertThrows(
-//                RequestError.class,
-//                generateExecutableForCreateCommentNotFoundItem()
-//        );
-//        assertEquals(HttpStatus.BAD_REQUEST, er.getStatus());
-//    }
-//
-//    @Test
-//    public void getRequestErrorForPagination() {
-//        RequestError er = Assertions.assertThrows(
-//                RequestError.class,
-//                generateExecutableForIncorrectPagination()
-//        );
-//        assertEquals(HttpStatus.BAD_REQUEST, er.getStatus());
-//    }
-
-//    @Test
-//    public void getRequestErrorForPaginationSearch() {
-//        RequestError er = Assertions.assertThrows(
-//                RequestError.class,
-//                generateExecutableForSearchItemByTextWithPagination()
-//        );
-//        assertEquals(HttpStatus.BAD_REQUEST, er.getStatus());
-//    }
-//
-//    @Test
-//    public void getRequestErrorForCreateCommentNullUser() {
-//        RequestError er = Assertions.assertThrows(
-//                RequestError.class,
-//                generateExecutableForCreateUser()
-//        );
-//        assertEquals(HttpStatus.BAD_REQUEST, er.getStatus());
-//    }
-//
-//    @Test
-//    public void getRequestErrorForAddCommentUserNotBooker() {
-//        RequestError er = Assertions.assertThrows(
-//                RequestError.class,
-//                generateExecutableForAddCommentUserNotBooker()
-//        );
-//        assertEquals(HttpStatus.BAD_REQUEST, er.getStatus());
-//    }
-
-    private Executable generateExecutableForNotFoundItem() {
-        User user = userService.addUser(createUserDto());
-        return () -> itemService.getItemById(user.getId(), 1L);
-    }
-
-    private Executable generateExecutableForNotFoundUser() {
-        return () -> itemService.addItem(100L, createItemDto(new User()));
-    }
-
-    private Executable generateExecutableForCreateEmptyComment() {
-        return () -> {
-            User user = userService.addUser(createUserDto());
-            Item itemDto = createItemDto(user);
-            Item item = itemService.addItem(user.getId(), itemDto);
-            Booking booking = createBooking(item, user);
-            bookingRepository.save(booking);
-            itemService.addComment(user.getId(), item.getId(), new Comment(1L, "супер-класс", item, user, LocalDateTime.now()));
-        };
-    }
-
-    private Executable generateExecutableForCreateCommentNotFoundItem() {
-        return () -> itemService.addComment(10L, 10L, new Comment(1L, "супер-класс", new Item(), new User(), LocalDateTime.now()));
-    }
-
-    private Executable generateExecutableForIncorrectPagination() {
-        return () -> {
-            User user = userService.addUser(createUserDto());
-            itemService.getItemsByUserId(user.getId(), -5, 10);
-        };
-    }
-
-    private Executable generateExecutableForSearchItemByTextWithPagination() {
-        return () -> {
-            User user = userService.addUser(createUserDto());
-            itemService.getItemsByDescription(user.getId(), "nam",-5, 10);
-        };
-    }
-
-    private Executable generateExecutableForCreateUser() {
-        return () -> {
-            User user = userService.addUser(createUserDto());
-            Item itemDto = createItemDto(user);
-            Item item = itemService.addItem(user.getId(), itemDto);
-            Booking booking = createBooking(item, user);
-            bookingRepository.save(booking);
-            itemService.addComment(100L, item.getId(), new Comment(1L, "супер-класс", item, user, LocalDateTime.now()));
-        };
-    }
-
-    private Executable generateExecutableForAddCommentUserNotBooker() {
-        return () -> {
-            User user = userService.addUser(createUserDto());
-            User newUserDto = createUserDto();
-            newUserDto.setEmail("rapapap@mail.ru");
-            newUserDto.setId(2L);
-            User newUser = userService.addUser(newUserDto);
-            Item itemDto = createItemDto(user);
-            Item item = itemService.addItem(user.getId(), itemDto);
-            Booking booking = createBooking(item, user);
-            bookingRepository.save(booking);
-            itemService.addComment(newUser.getId(), item.getId(), new Comment(1L, "супер-класс", item, user, LocalDateTime.now()));
-        };
     }
 
     private Item createItemDto(User owner) {

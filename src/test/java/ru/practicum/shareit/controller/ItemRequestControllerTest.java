@@ -90,7 +90,6 @@ public class ItemRequestControllerTest {
 
     @Test
     public void getItemRequestForUserTest() throws Exception {
-//        when(itemRequestService.getItemRequestsByVisitor(any(), any(), any())).thenReturn(List.of(itemRequest));
 
         mvc.perform(get("/requests")
                         .header("X-Sharer-User-Id", 1)
@@ -98,14 +97,10 @@ public class ItemRequestControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-                //.andExpect(jsonPath("$[*].id", containsInAnyOrder(itemResponseDto.getId())))
-//                .andExpect(jsonPath("$[*].description", containsInAnyOrder(itemResponseDto.getDescription())))
-//                .andExpect(jsonPath("$[*].created", containsInAnyOrder(notNullValue())));
     }
 
     @Test
     public void getItemsTest() throws Exception {
- //       when(itemRequestService.getItemRequestsByOwner(any())).thenReturn(List.of(itemRequest));
 
         mvc.perform(get("/requests/all")
                         .header("X-Sharer-User-Id", 1)
@@ -114,21 +109,6 @@ public class ItemRequestControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
-
-//    @Test
-//    public void getItemsWithPaginationTest() throws Exception {
-//        when(itemRequestService.getItemsWithPagination(any(), any(), any())).thenReturn(List.of(requestDto));
-//
-//        mvc.perform(get("/requests/all?from=0&size=10")
-//                        .header("X-Sharer-User-Id", 1)
-//                        .characterEncoding(StandardCharsets.UTF_8)
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .accept(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$[*].id", containsInAnyOrder(request.getId())))
-//                .andExpect(jsonPath("$[*].description", containsInAnyOrder(request.getDescription())))
-//                .andExpect(jsonPath("$[*].created", containsInAnyOrder(notNullValue())));
-//    }
 
     @Test
     public void getRequestByIdTest() throws Exception {

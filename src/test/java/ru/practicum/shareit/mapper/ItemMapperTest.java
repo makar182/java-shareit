@@ -19,18 +19,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(MockitoExtension.class)
 public class ItemMapperTest {
-    public Item item;
-    public User user;
-    public ItemRequestDto itemRequestDto;
+    private Item item;
+    private User user;
+    private ItemRequestDto itemRequestDto;
 
     @Mock
-    BookingRepository bookingRepository;
+    private BookingRepository bookingRepository;
     @Mock
-    CommentRepository commentRepository;
+    private CommentRepository commentRepository;
     @Mock
-    ItemRequestRepository itemRequestRepository;
+    private ItemRequestRepository itemRequestRepository;
     @Mock
-    ItemMapper itemMapper;
+    private ItemMapper itemMapper;
 
     public ItemMapperTest() {
         this.itemMapper = new ItemMapper(bookingRepository, commentRepository, itemRequestRepository);
@@ -65,12 +65,4 @@ public class ItemMapperTest {
         assertEquals(itemDto.getDescription(), item.getDescription());
         assertEquals(itemDto.getAvailable(), item.getAvailable());
     }
-
-//    @Test
-//    public void toItemTest() {
-//        Item itemDto = itemMapper.toItemEntity(itemRequestDto);
-//        assertEquals(item.getName(), itemDto.getName());
-//        assertEquals(item.getDescription(), itemDto.getDescription());
-//        assertEquals(item.getAvailable(), itemDto.getAvailable());
-//    }
 }

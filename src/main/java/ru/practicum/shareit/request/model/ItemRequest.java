@@ -21,7 +21,7 @@ public class ItemRequest {
     private Long id;
     private String description;
     private LocalDateTime created = LocalDateTime.now();
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "requester_id", referencedColumnName = "id")
     private User requester;
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "request")
