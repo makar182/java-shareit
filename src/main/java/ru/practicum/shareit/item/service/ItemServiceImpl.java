@@ -13,7 +13,7 @@ import ru.practicum.shareit.exception.ItemNotBookedByUserException;
 import ru.practicum.shareit.exception.ItemNotExistException;
 import ru.practicum.shareit.exception.ItemNotValidPropertiesException;
 import ru.practicum.shareit.exception.UserNotExistException;
-import ru.practicum.shareit.item.dto.ItemGetResponseDto;
+import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
@@ -39,18 +39,20 @@ public class ItemServiceImpl implements ItemService {
     private final ItemMapper itemMapper;
 
     @Override
-    public Item addItem(Long userId, Item item) {
+    public ItemMainResponseDto addItem(Long userId, ItemRequestDto itemRequestDto) {
         User user = getUserIfExists(userId);
-
+        Item item = itemMapper.toItemEntity(itemRequestDto);
         item.setOwner(user);
         Item newItem = itemRepository.saveAndFlush(item);
 
         log.info(String.format("Предмет %s успешно добавлен", newItem));
-        return newItem;
+        return ItemMapper.toItemMainResponseDto(newItem);
     }
 
     @Override
-    public Item updateItem(Long userId, Long itemId, Item item) {
+    public ItemMainResponseDto updateItem(Long userId, Long itemId, ItemRequestDto itemRequestDto) {
+        Item item = itemMapper.toItemEntity(itemRequestDto);
+
         Item oldItem = itemRepository.findById(itemId).orElseThrow(() -> {
             log.info(String.format("Предмет %d: %s не существует", itemId, item));
             throw new ItemNotExistException(String.format("Предмет %d: %s не существует", itemId, item));
@@ -87,7 +89,7 @@ public class ItemServiceImpl implements ItemService {
         Item itemToAdd = new Item(oldItem.getId(), newItemName, newItemDescription, newItemAvailableFlag, oldItem.getOwner(), oldItem.getComments(), newItemRequest);
         Item newItem = itemRepository.saveAndFlush(itemToAdd);
         log.info(String.format("Предмет %s успешно обновлен", newItem));
-        return newItem;
+        return ItemMapper.toItemMainResponseDto(newItem);
     }
 
     @Override
@@ -132,8 +134,10 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public Comment addComment(Long userId, Long itemId, Comment comment) {
+    public CommentResponseDto addComment(Long userId, Long itemId, CommentRequestDto commentRequestDto) {
         User user = getUserIfExists(userId);
+
+        Comment comment = ItemMapper.toCommentEntity(commentRequestDto);
 
         Booking bookingExist = bookingRepository.findAllByItem_Id(itemId).stream()
                 .filter(booking -> booking.getBooker().getId().equals(userId))
@@ -146,7 +150,7 @@ public class ItemServiceImpl implements ItemService {
                 });
         comment.setItem(bookingExist.getItem());
         comment.setAuthor(user);
-        return commentRepository.saveAndFlush(comment);
+        return ItemMapper.toCommentResponseDto(commentRepository.saveAndFlush(comment));
     }
 
     private User getUserIfExists(Long userId) {

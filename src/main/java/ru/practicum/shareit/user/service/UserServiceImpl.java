@@ -5,6 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DuplicateUserEmailException;
 import ru.practicum.shareit.exception.UserNotExistException;
+import ru.practicum.shareit.user.dto.UserRequestDto;
+import ru.practicum.shareit.user.dto.UserResponseDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -17,28 +20,30 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public User getUserById(Long userId) {
+    public UserResponseDto getUserById(Long userId) {
         User user = getUserIfExists(userId);
         log.info(String.format("Пользователь %s выгружен по id.", user));
-        return user;
+        return UserMapper.toDto(user);
     }
 
     @Override
-    public List<User> getUsers() {
+    public List<UserResponseDto> getUsers() {
         List<User> users = userRepository.findAll();
         log.info("Выгружены все пользователи");
-        return users;
+        return UserMapper.toDtoList(users);
     }
 
     @Override
-    public User addUser(User user) {
+    public UserResponseDto addUser(UserRequestDto userRequestDto) {
+        User user = UserMapper.toEntity(userRequestDto);
         User result = userRepository.saveAndFlush(user);
         log.info(String.format("Пользователь %s добавлен.", result));
-        return result;
+        return UserMapper.toDto(result);
     }
 
     @Override
-    public User updateUser(Long userId, User user) {
+    public UserResponseDto updateUser(Long userId, UserRequestDto userRequestDto) {
+        User user = UserMapper.toEntity(userRequestDto);
         User oldUser = getUserIfExists(userId);
 
         if (user.getEmail() != null
@@ -73,7 +78,7 @@ public class UserServiceImpl implements UserService {
         }
 
         log.info(String.format("Пользователь %s обновлен.", newUser));
-        return newUser;
+        return UserMapper.toDto(newUser);
     }
 
     @Override

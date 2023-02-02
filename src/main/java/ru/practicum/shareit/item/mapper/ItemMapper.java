@@ -28,13 +28,6 @@ public class ItemMapper {
     private final CommentRepository commentRepository;
     private final ItemRequestRepository itemRequestRepository;
 
-//    @Autowired
-//    public ItemMapper(BookingRepository bookingRepository, CommentRepository commentRepository, ItemRequestRepository itemRequestRepository) {
-//        this.bookingRepository = bookingRepository;
-//        this.commentRepository = commentRepository;
-//        this.itemRequestRepository = itemRequestRepository;
-//    }
-
     public static ItemMainResponseDto toItemMainResponseDto(Item item) {
         return ItemMainResponseDto.builder()
                 .id(item.getId())

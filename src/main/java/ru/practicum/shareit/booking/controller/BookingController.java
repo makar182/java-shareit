@@ -1,9 +1,8 @@
 package ru.practicum.shareit.booking.controller;
 
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.booking.dto.BookingRequestDto;
-import ru.practicum.shareit.booking.dto.BookingResponseDto;
-import ru.practicum.shareit.booking.mapper.BookingMapper;
+import ru.practicum.shareit.booking.BookingRequestDto;
+import ru.practicum.shareit.booking.BookingResponseDto;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
@@ -21,7 +20,7 @@ public class BookingController {
     @GetMapping("/{bookingId}")
     public BookingResponseDto getBookingById(@RequestHeader("X-Sharer-User-Id") Long userId,
                                              @PathVariable("bookingId") Long bookingId) {
-        return BookingMapper.toDto(bookingService.getBookingById(userId, bookingId));
+        return bookingService.getBookingById(userId, bookingId);
     }
 
     @GetMapping
@@ -29,7 +28,7 @@ public class BookingController {
                                                       @RequestParam(name = "state", required = false, defaultValue = "ALL") String state,
                                                       @RequestParam(name = "from", required = false, defaultValue = "0") int from,
                                                       @RequestParam(name = "size", required = false, defaultValue = "10") int size) {
-        return BookingMapper.toDtoList(bookingService.getBookingsByBooker(userId, state, from, size));
+        return bookingService.getBookingsByBooker(userId, state, from, size);
     }
 
     @GetMapping("/owner")
@@ -37,19 +36,19 @@ public class BookingController {
                                                        @RequestParam(name = "state", required = false, defaultValue = "ALL") String state,
                                                        @RequestParam(name = "from", required = false, defaultValue = "0") int from,
                                                        @RequestParam(name = "size", required = false, defaultValue = "10") int size) {
-        return BookingMapper.toDtoList(bookingService.getBookingsByOwner(userId, state, from, size));
+        return bookingService.getBookingsByOwner(userId, state, from, size);
     }
 
     @PostMapping
     public BookingResponseDto addBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
                                          @Valid @RequestBody BookingRequestDto booking) {
-        return BookingMapper.toDto(bookingService.addBooking(BookingMapper.toEntity(booking), userId));
+        return bookingService.addBooking(booking, userId);
     }
 
     @PatchMapping("/{bookingId}")
     public BookingResponseDto approveBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
                                              @PathVariable("bookingId") Long bookingId,
                                              @RequestParam("approved") Boolean approved) {
-        return BookingMapper.toDto(bookingService.approveBooking(userId, bookingId, approved));
+        return bookingService.approveBooking(userId, bookingId, approved);
     }
 }

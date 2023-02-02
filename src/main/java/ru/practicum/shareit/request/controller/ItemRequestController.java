@@ -22,24 +22,24 @@ public class ItemRequestController {
     @PostMapping
     public ItemResponseDto addItemRequest(@RequestHeader("X-Sharer-User-Id") Long userId,
                                           @Validated(OnAdd.class)  @RequestBody ItemRequestDto itemRequestDto) {
-        return ItemRequestMapper.toDto(itemRequestService.addItemRequest(ItemRequestMapper.toEntity(itemRequestDto), userId));
+        return itemRequestService.addItemRequest(itemRequestDto, userId);
     }
 
     @GetMapping("/{requestId}")
     public ItemResponseDto getItemRequestById(@RequestHeader("X-Sharer-User-Id") Long userId,
                                               @PathVariable("requestId") Long requestId) {
-        return ItemRequestMapper.toDto(itemRequestService.getItemRequestById(requestId, userId));
+        return itemRequestService.getItemRequestById(requestId, userId);
     }
 
     @GetMapping
     public List<ItemResponseDto> getItemRequestsByOwner(@RequestHeader("X-Sharer-User-Id") Long userId) {
-        return ItemRequestMapper.toDtoList(itemRequestService.getItemRequestsByOwner(userId));
+        return itemRequestService.getItemRequestsByOwner(userId);
     }
 
     @GetMapping("/all")
     public List<ItemResponseDto> getItemRequestsByVisitor(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                           @RequestParam(name = "from", required = false, defaultValue = "0") int from,
                                                           @RequestParam(name = "size", required = false, defaultValue = "10") int size) {
-        return ItemRequestMapper.toDtoList(itemRequestService.getItemRequestsByVisitor(userId, from, size));
+        return itemRequestService.getItemRequestsByVisitor(userId, from, size);
     }
 }

@@ -6,8 +6,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.BookingRequestDto;
+import ru.practicum.shareit.booking.BookingResponseDto;
 import ru.practicum.shareit.booking.enums.BookingState;
 import ru.practicum.shareit.booking.enums.BookingStatus;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.*;
@@ -35,7 +38,7 @@ public class BookingServiceImpl implements BookingService {
 
 
     @Override
-    public Booking getBookingById(Long userId, Long bookingId) {
+    public BookingResponseDto getBookingById(Long userId, Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> {
             log.info(String.format("Бронирование №%d не существует!", bookingId));
             throw new BookingNotExistException(String.format("Бронирования №%d не существует!", bookingId));
@@ -46,11 +49,11 @@ public class BookingServiceImpl implements BookingService {
             throw new UserNotAllowedToGetBookingException(String.format("Пользователь №%d не может просматривать бронирование №%d!", userId, bookingId));
         }
 
-        return booking;
+        return BookingMapper.toDto(booking);
     }
 
     @Override
-    public List<Booking> getBookingsByBooker(Long userId, String state, int from, int size) {
+    public List<BookingResponseDto> getBookingsByBooker(Long userId, String state, int from, int size) {
         checkFromSizeArguments(from, size);
 
         getUserIfExists(userId);
@@ -61,24 +64,24 @@ public class BookingServiceImpl implements BookingService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("start").descending());
 
         if (stateEnum.equals(BookingState.ALL)) {
-            return bookingRepository.findAllByBooker_Id(userId, pageable);
+            return BookingMapper.toDtoList(bookingRepository.findAllByBooker_Id(userId, pageable));
         } else if (stateEnum.equals(BookingState.CURRENT)) {
-            return bookingRepository.findAllByBooker_IdAndStartIsBeforeAndEndIsAfter(userId, LocalDateTime.now(), LocalDateTime.now(), pageable);
+            return BookingMapper.toDtoList(bookingRepository.findAllByBooker_IdAndStartIsBeforeAndEndIsAfter(userId, LocalDateTime.now(), LocalDateTime.now(), pageable));
         } else if (stateEnum.equals(BookingState.PAST)) {
-            return bookingRepository.findAllByBooker_IdAndEndIsBefore(userId, LocalDateTime.now(), pageable);
+            return BookingMapper.toDtoList(bookingRepository.findAllByBooker_IdAndEndIsBefore(userId, LocalDateTime.now(), pageable));
         } else if (stateEnum.equals(BookingState.FUTURE)) {
-            return bookingRepository.findAllByBooker_IdAndStartIsAfter(userId, LocalDateTime.now(), pageable);
+            return BookingMapper.toDtoList(bookingRepository.findAllByBooker_IdAndStartIsAfter(userId, LocalDateTime.now(), pageable));
         } else if (stateEnum.equals(BookingState.WAITING)) {
-            return bookingRepository.findAllByBooker_IdAndStatus(userId, BookingStatus.WAITING, pageable);
+            return BookingMapper.toDtoList(bookingRepository.findAllByBooker_IdAndStatus(userId, BookingStatus.WAITING, pageable));
         } else if (stateEnum.equals(BookingState.REJECTED)) {
-            return bookingRepository.findAllByBooker_IdAndStatus(userId, BookingStatus.REJECTED, pageable);
+            return BookingMapper.toDtoList(bookingRepository.findAllByBooker_IdAndStatus(userId, BookingStatus.REJECTED, pageable));
         } else {
             throw new IllegalArgumentException(String.format("Статуса %s не существует", state));
         }
     }
 
     @Override
-    public List<Booking> getBookingsByOwner(Long userId, String state, int from, int size) {
+    public List<BookingResponseDto> getBookingsByOwner(Long userId, String state, int from, int size) {
         checkFromSizeArguments(from, size);
 
         getUserIfExists(userId);
@@ -89,24 +92,26 @@ public class BookingServiceImpl implements BookingService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("start").descending());
 
         if (stateEnum.equals(BookingState.ALL)) {
-            return bookingRepository.findAllByItem_Owner_Id(userId, pageable);
+            return BookingMapper.toDtoList(bookingRepository.findAllByItem_Owner_Id(userId, pageable));
         } else if (stateEnum.equals(BookingState.CURRENT)) {
-            return bookingRepository.findAllByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(userId, LocalDateTime.now(), LocalDateTime.now(), pageable);
+            return BookingMapper.toDtoList(bookingRepository.findAllByItem_Owner_IdAndStartIsBeforeAndEndIsAfter(userId, LocalDateTime.now(), LocalDateTime.now(), pageable));
         } else if (stateEnum.equals(BookingState.PAST)) {
-            return bookingRepository.findAllByItem_Owner_IdAndEndIsBefore(userId, LocalDateTime.now(), pageable);
+            return BookingMapper.toDtoList(bookingRepository.findAllByItem_Owner_IdAndEndIsBefore(userId, LocalDateTime.now(), pageable));
         } else if (stateEnum.equals(BookingState.FUTURE)) {
-            return bookingRepository.findAllByItem_Owner_IdAndStartIsAfter(userId, LocalDateTime.now(), pageable);
+            return BookingMapper.toDtoList(bookingRepository.findAllByItem_Owner_IdAndStartIsAfter(userId, LocalDateTime.now(), pageable));
         } else if (stateEnum.equals(BookingState.WAITING)) {
-            return bookingRepository.findAllByItem_Owner_IdAndStatus(userId, BookingStatus.WAITING, pageable);
+            return BookingMapper.toDtoList(bookingRepository.findAllByItem_Owner_IdAndStatus(userId, BookingStatus.WAITING, pageable));
         } else if (stateEnum.equals(BookingState.REJECTED)) {
-            return bookingRepository.findAllByItem_Owner_IdAndStatus(userId, BookingStatus.REJECTED, pageable);
+            return BookingMapper.toDtoList(bookingRepository.findAllByItem_Owner_IdAndStatus(userId, BookingStatus.REJECTED, pageable));
         } else {
             return null;
         }
     }
 
     @Override
-    public Booking addBooking(Booking booking, Long userId) {
+    public BookingResponseDto addBooking(BookingRequestDto bookingRequestDto, Long userId) {
+        Booking booking = BookingMapper.toEntity(bookingRequestDto);
+
         if (booking.getStart().isAfter(booking.getEnd())) {
             log.info("Дата начала бронирования не может быть позже даты окончания!");
             throw new IncorrectBookingDateException("Дата начала бронирования не может быть позже даты окончания!");
@@ -135,11 +140,11 @@ public class BookingServiceImpl implements BookingService {
         }
 
         Booking newBooking = new Booking(null, booking.getStart(), booking.getEnd(), item, user, booking.getStatus());
-        return bookingRepository.saveAndFlush(newBooking);
+        return BookingMapper.toDto(bookingRepository.saveAndFlush(newBooking));
     }
 
     @Override
-    public Booking approveBooking(Long userId, Long bookingId, Boolean approved) {
+    public BookingResponseDto approveBooking(Long userId, Long bookingId, Boolean approved) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() -> {
             log.info(String.format("Бронирование №%d не существует!", bookingId));
             throw new BookingNotExistException(String.format("Бронирование №%d не существует!", bookingId));
@@ -162,7 +167,7 @@ public class BookingServiceImpl implements BookingService {
         }
 
         bookingRepository.saveAndFlush(booking);
-        return booking;
+        return BookingMapper.toDto(booking);
     }
 
     private User getUserIfExists(Long userId) {

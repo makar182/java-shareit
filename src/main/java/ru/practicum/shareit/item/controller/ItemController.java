@@ -16,25 +16,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemController {
     private final ItemService itemService;
-    private final ItemMapper itemMapper;
-
-//    @Autowired
-//    public ItemController(ItemService itemService, ItemMapper itemMapper) {
-//        this.itemService = itemService;
-//        this.itemMapper = itemMapper;
-//    }
 
     @PostMapping
     public ItemMainResponseDto addItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                                        @Validated(OnAdd.class) @RequestBody ItemRequestDto itemRequestDto) {
-        return ItemMapper.toItemMainResponseDto(itemService.addItem(userId, itemMapper.toItemEntity(itemRequestDto)));
+        return itemService.addItem(userId, itemRequestDto);
     }
 
     @PatchMapping("/{itemId}")
     public ItemMainResponseDto updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                                           @PathVariable("itemId") Long itemId,
                                           @Validated(OnUpdate.class) @RequestBody ItemRequestDto itemRequestDto) {
-        return ItemMapper.toItemMainResponseDto(itemService.updateItem(userId, itemId, itemMapper.toItemEntity(itemRequestDto)));
+        return itemService.updateItem(userId, itemId, itemRequestDto);
     }
 
     @GetMapping("/{itemId}")
@@ -62,7 +55,7 @@ public class ItemController {
     public CommentResponseDto addComment(@RequestHeader("X-Sharer-User-Id") Long userId,
                                          @PathVariable("itemId") Long itemId,
                                          @Validated @RequestBody CommentRequestDto commentRequestDto) {
-        return ItemMapper.toCommentResponseDto(itemService.addComment(userId, itemId, ItemMapper.toCommentEntity(commentRequestDto)));
+        return itemService.addComment(userId, itemId, commentRequestDto);
     }
 
 }
