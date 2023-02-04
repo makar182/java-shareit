@@ -1,12 +1,8 @@
 package ru.practicum.shareit.item.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.interfaces.OnAdd;
-import ru.practicum.shareit.interfaces.OnUpdate;
 import ru.practicum.shareit.item.dto.*;
-import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.service.ItemService;
 
 import java.util.List;
