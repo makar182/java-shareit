@@ -1,10 +1,7 @@
 package ru.practicum.shareit.user.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.interfaces.OnAdd;
-import ru.practicum.shareit.interfaces.OnUpdate;
 import ru.practicum.shareit.user.dto.UserRequestDto;
 import ru.practicum.shareit.user.dto.UserResponseDto;
 import ru.practicum.shareit.user.service.UserService;
