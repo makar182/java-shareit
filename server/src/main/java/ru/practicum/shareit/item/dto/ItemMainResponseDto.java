@@ -11,13 +11,8 @@ import java.util.Objects;
 @AllArgsConstructor
 public class ItemMainResponseDto {
     private Long id;
-    //@NotNull(message = "У вещи должно быть название!")
-    //@NotBlank(message = "У вещи должно быть название!")
     private String name;
-    //@NotBlank(message = "У вещи должно быть описание!")
-    //@Size(max = 1024, message = "Размер описания не должен превышать 255 символов!")
     private String description;
-    //@NotNull
     private Boolean available;
     private Long requestId;
 

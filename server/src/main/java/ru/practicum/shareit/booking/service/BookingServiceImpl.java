@@ -6,8 +6,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.BookingRequestDto;
-import ru.practicum.shareit.booking.BookingResponseDto;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
+import ru.practicum.shareit.booking.dto.BookingResponseDto;
 import ru.practicum.shareit.booking.enums.BookingState;
 import ru.practicum.shareit.booking.enums.BookingStatus;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
@@ -112,10 +112,10 @@ public class BookingServiceImpl implements BookingService {
     public BookingResponseDto addBooking(BookingRequestDto bookingRequestDto, Long userId) {
         Booking booking = BookingMapper.toEntity(bookingRequestDto);
 
-        if (booking.getStart().isAfter(booking.getEnd())) {
-            log.info("Дата начала бронирования не может быть позже даты окончания!");
-            throw new IncorrectBookingDateException("Дата начала бронирования не может быть позже даты окончания!");
-        }
+//        if (booking.getStart().isAfter(booking.getEnd())) {
+//            log.info("Дата начала бронирования не может быть позже даты окончания!");
+//            throw new IncorrectBookingDateException("Дата начала бронирования не может быть позже даты окончания!");
+//        }
 
         User user = getUserIfExists(userId);
 
